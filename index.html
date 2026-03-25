@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>P2P Game Lounge - Ultimate</title>
+    <title>P2P Game Lounge - Fixed</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
@@ -14,7 +14,6 @@
         .toast-enter { animation: slideIn 0.3s ease-out forwards; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
-        /* 爆弾のアニメーション */
         @keyframes vibrate { 0% { transform: translate(0); } 20% { transform: translate(-2px, 2px); } 40% { transform: translate(-2px, -2px); } 60% { transform: translate(2px, 2px); } 80% { transform: translate(2px, -2px); } 100% { transform: translate(0); } }
         .bomb-active { animation: vibrate 0.1s linear infinite; }
     </style>
@@ -31,7 +30,7 @@
         <div class="p-6 flex flex-col gap-4 text-white">
             <div class="flex items-center justify-between border-b border-slate-600 pb-2">
                 <h3 class="text-xl font-bold">設定</h3>
-                <button onclick="closeProfileSettings()" class="text-gray-400">✕</button>
+                <button onclick="closeProfileSettings()" class="text-gray-400 text-xl">✕</button>
             </div>
             <input type="text" id="setting-player-name" class="w-full p-3 rounded-xl bg-slate-900 border border-slate-600 text-white" placeholder="名前">
             <div class="flex items-center justify-between bg-slate-800 p-3 rounded-xl">
@@ -68,7 +67,7 @@
         <div class="w-full md:w-80 border-r border-slate-700 flex flex-col bg-slate-800/60 shrink-0 h-1/3 md:h-full">
             <div class="p-3 border-b border-slate-700 bg-slate-900/50 flex items-center justify-between">
                 <h3 class="font-bold">👥 プレイヤー <span id="player-count">1</span></h3>
-                <span id="room-pin-display" class="bg-slate-800 border border-slate-600 text-emerald-400 px-2 py-1 rounded font-mono text-sm" onclick="copyPin()">PIN: ----</span>
+                <span id="room-pin-display" class="bg-slate-800 border border-slate-600 text-emerald-400 px-2 py-1 rounded font-mono text-sm cursor-pointer" onclick="copyPin()">PIN: ----</span>
             </div>
             <div id="player-list" class="flex-1 overflow-y-auto p-3 flex flex-col gap-2"></div>
             <div class="p-3 bg-slate-900/80 border-t border-slate-700">
@@ -81,19 +80,19 @@
                 <h2 class="text-xl font-bold mb-4">🎮 ゲームを選択 <span class="text-xs text-gray-400">(ホストのみ)</span></h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     <button onclick="hostStartGame('ten')" class="bg-slate-800 hover:bg-slate-700 p-4 rounded-xl flex flex-col items-center transition border border-slate-600">
-                        <span class="text-4xl mb-2">🧩</span><span class="font-bold">一致するまで終われまテン</span><span class="text-[10px] text-gray-400">手書き/テキスト対応</span>
+                        <span class="text-4xl mb-2">🧩</span><span class="font-bold">一致するまで終われまテン</span>
                     </button>
                     <button onclick="openWWSettings('onenight')" class="bg-slate-800 hover:bg-slate-700 p-4 rounded-xl flex flex-col items-center transition border border-slate-600 hover:border-red-400">
-                        <span class="text-4xl mb-2">🐺</span><span class="font-bold">ワンナイト人狼</span><span class="text-[10px] text-gray-400">1夜完結・役職固定</span>
+                        <span class="text-4xl mb-2">🐺</span><span class="font-bold">ワンナイト人狼</span>
                     </button>
                     <button onclick="openWWSettings('standard')" class="bg-slate-800 hover:bg-slate-700 p-4 rounded-xl flex flex-col items-center transition border border-slate-600 hover:border-red-600">
-                        <span class="text-4xl mb-2">🌕</span><span class="font-bold">人狼ゲーム</span><span class="text-[10px] text-gray-400">役職カスタム可</span>
+                        <span class="text-4xl mb-2">🌕</span><span class="font-bold">人狼ゲーム</span>
                     </button>
                     <button onclick="hostStartGame('drawing')" class="bg-slate-800 hover:bg-slate-700 p-4 rounded-xl flex flex-col items-center transition border border-slate-600 hover:border-blue-400">
                         <span class="text-4xl mb-2">🎨</span><span class="font-bold">何を描いているでしょう</span>
                     </button>
                     <button onclick="hostStartGame('bomb')" class="bg-slate-800 hover:bg-slate-700 p-4 rounded-xl flex flex-col items-center transition border border-slate-600 hover:border-orange-400">
-                        <span class="text-4xl mb-2">💣</span><span class="font-bold">時限爆弾ポテト</span><span class="text-[10px] text-gray-400">ランダム爆発！</span>
+                        <span class="text-4xl mb-2">💣</span><span class="font-bold">時限爆弾ポテト</span>
                     </button>
                 </div>
             </div>
@@ -101,8 +100,8 @@
     </div>
 
     <template id="tpl-play-again">
-        <div class="flex gap-4 mt-6 justify-center host-only hidden">
-            <button onclick="playAgain()" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 rounded-xl font-bold">そのままゲームを続ける</button>
+        <div class="flex gap-4 mt-6 justify-center host-only hidden z-50">
+            <button onclick="playAgain()" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 rounded-xl font-bold">もう一度遊ぶ</button>
             <button onclick="endGame()" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl font-bold">ロビーに戻る</button>
         </div>
     </template>
@@ -111,8 +110,8 @@
         <div class="p-4 border-b border-slate-700 flex justify-between bg-emerald-900/30">
             <h2 class="text-xl font-bold text-emerald-400">🧩 一致するまで終われまテン</h2><div id="ten-status" class="px-3 bg-slate-800 rounded-full text-sm">進行中</div>
         </div>
-        <div class="flex-1 p-4 flex flex-col items-center justify-center text-center overflow-y-auto">
-            <div id="ten-input-view" class="w-full max-w-lg flex flex-col gap-4">
+        <div class="flex-1 p-4 flex flex-col items-center justify-start md:justify-center text-center overflow-y-auto">
+            <div id="ten-input-view" class="w-full max-w-lg flex flex-col gap-4 mt-4">
                 <h3 id="ten-topic" class="text-3xl font-extrabold text-white mb-2">--</h3>
                 <div class="flex justify-center mb-2">
                     <button onclick="switchTenMode('text')" id="btn-ten-text" class="px-4 py-1 bg-indigo-600 rounded-l-lg font-bold text-sm">キーボード</button>
@@ -123,17 +122,24 @@
                     <canvas id="ten-canvas" width="300" height="300" class="bg-white rounded-lg border border-gray-400 touch-none"></canvas>
                     <button onclick="clearTenCanvas()" class="mt-2 text-sm text-red-400">描き直す</button>
                 </div>
-                <button onclick="submitTenAns()" class="w-full py-4 bg-emerald-600 rounded-xl font-bold text-lg mt-2">提出</button>
+                <button onclick="submitTenAns()" id="btn-ten-submit" class="w-full py-4 bg-emerald-600 rounded-xl font-bold text-lg mt-2">提出</button>
+                
+                <div class="mt-4 p-3 bg-slate-800 rounded-xl border border-slate-700">
+                    <p class="text-sm font-bold text-emerald-400 mb-2">提出状況</p>
+                    <div id="ten-submit-status" class="grid grid-cols-2 gap-2 text-sm text-left"></div>
+                </div>
             </div>
-            <div id="ten-judge-view" class="w-full hidden flex-col gap-4">
-                <h3 class="text-2xl font-bold text-yellow-400">ホスト判定中...</h3>
+            
+            <div id="ten-judge-view" class="w-full hidden flex-col gap-4 mt-4">
+                <h3 class="text-2xl font-bold text-yellow-400">ホストが判定中...</h3>
                 <div id="ten-judge-list" class="grid grid-cols-2 md:grid-cols-3 gap-4 bg-slate-900 p-4 rounded-xl"></div>
                 <div class="flex gap-4 justify-center host-only hidden mt-4">
                     <button onclick="hostDecideTen(true)" class="px-6 py-3 bg-emerald-600 rounded-xl font-bold">全員一致！(成功)</button>
                     <button onclick="hostDecideTen(false)" class="px-6 py-3 bg-red-600 rounded-xl font-bold">不一致(失敗)</button>
                 </div>
             </div>
-            <div id="ten-result-view" class="w-full max-w-2xl hidden flex-col gap-4">
+            
+            <div id="ten-result-view" class="w-full max-w-2xl hidden flex-col gap-4 mt-4">
                 <h3 id="ten-result-title" class="text-4xl font-extrabold">--</h3>
                 <div id="ten-result-list" class="grid grid-cols-2 gap-4 bg-slate-900 p-4 rounded-xl max-h-[40vh] overflow-y-auto"></div>
                 <div id="ten-play-again"></div>
@@ -145,12 +151,13 @@
         <div class="p-6 flex flex-col gap-4 text-white">
             <h3 id="ww-setup-title" class="text-xl font-bold border-b border-slate-600 pb-2">人狼設定</h3>
             <div class="grid grid-cols-2 gap-2 text-sm">
-                <div>🐺 人狼</div><input type="number" id="ww-set-wolf" value="1" min="1" class="w-16 bg-slate-800 text-center rounded">
-                <div>🔮 占い師</div><input type="number" id="ww-set-seer" value="1" min="0" class="w-16 bg-slate-800 text-center rounded">
-                <div class="ww-standard-only">🛡️ 騎士</div><input type="number" id="ww-set-knight" value="0" min="0" class="ww-standard-only w-16 bg-slate-800 text-center rounded">
-                <div class="ww-standard-only">🃏 狂人</div><input type="number" id="ww-set-madman" value="0" min="0" class="ww-standard-only w-16 bg-slate-800 text-center rounded">
+                <div>🐺 人狼</div><input type="number" id="ww-set-wolf" value="1" min="1" class="w-16 bg-slate-800 text-center rounded border border-slate-600">
+                <div>🔮 占い師</div><input type="number" id="ww-set-seer" value="1" min="0" class="w-16 bg-slate-800 text-center rounded border border-slate-600">
+                <div class="ww-standard-only">🛡️ 騎士</div><input type="number" id="ww-set-knight" value="0" min="0" class="ww-standard-only w-16 bg-slate-800 text-center rounded border border-slate-600">
+                <div class="ww-standard-only">🃏 狂人</div><input type="number" id="ww-set-madman" value="0" min="0" class="ww-standard-only w-16 bg-slate-800 text-center rounded border border-slate-600">
+                <div class="col-span-2 border-t border-slate-700 mt-2 pt-2"></div>
+                <div>⏱️ 議論時間(秒)</div><input type="number" id="ww-set-time" value="60" min="10" step="10" class="w-16 bg-slate-800 text-center rounded border border-slate-600">
             </div>
-            <p class="text-xs text-gray-400">※残りの人数は「市民」になります</p>
             <button onclick="startWerewolf()" class="w-full py-3 bg-red-600 rounded-xl font-bold mt-2">ゲーム開始</button>
             <button onclick="document.getElementById('modal-ww-settings').close()" class="w-full py-2 bg-slate-700 rounded-xl text-sm">キャンセル</button>
         </div>
@@ -162,16 +169,15 @@
             <div id="ww-timer" class="font-mono font-bold text-yellow-400 bg-slate-800 px-3 py-1 rounded">00:00</div>
         </div>
         <div class="flex-1 p-4 flex flex-col items-center justify-center text-center overflow-y-auto">
-            
             <div id="ww-status-text" class="text-xl font-bold mb-4 text-gray-300">役職確認</div>
             
             <div id="ww-night-view" class="w-full max-w-sm flex flex-col gap-4">
                 <div id="ww-my-role" class="text-5xl font-extrabold mb-2">--</div>
                 <div id="ww-night-action" class="bg-slate-900 p-4 rounded-xl border border-slate-600 hidden">
-                    <p id="ww-action-desc" class="text-sm mb-3">対象を選んでください</p>
+                    <p id="ww-action-desc" class="text-sm mb-3 text-yellow-400">対象を選んでください</p>
                     <div id="ww-target-list" class="flex flex-col gap-2"></div>
                 </div>
-                <div id="ww-night-waiting" class="text-gray-400 hidden">他のプレイヤーを待っています...</div>
+                <div id="ww-night-waiting" class="text-gray-400 hidden animate-pulse bg-slate-900 p-4 rounded-xl">他のプレイヤーの準備を待っています...</div>
             </div>
 
             <div id="ww-day-view" class="w-full max-w-sm hidden flex-col gap-4">
@@ -205,20 +211,20 @@
                     <div id="bomb-target-list" class="grid grid-cols-2 gap-2"></div>
                 </div>
             </div>
-            <div id="bomb-result" class="hidden flex-col gap-4 items-center">
+            <div id="bomb-result" class="hidden flex-col gap-4 items-center w-full">
                 <span class="text-9xl">💥</span>
                 <h3 id="bomb-loser" class="text-3xl font-bold text-red-500">--</h3>
-                <div id="bomb-play-again"></div>
+                <div id="bomb-play-again" class="mt-4 w-full"></div>
             </div>
         </div>
     </div>
 
-    <div id="screen-game-drawing" class="game-screen glass rounded-3xl w-full max-w-5xl h-[calc(100vh-6rem)] hidden flex-col overflow-hidden">
+    <div id="screen-game-drawing" class="game-screen glass rounded-3xl w-full max-w-5xl h-[calc(100vh-6rem)] hidden flex-col overflow-hidden relative">
         <div class="p-3 border-b border-slate-700 flex justify-between bg-blue-900/30">
             <h2 class="text-lg font-bold text-blue-400">🎨 何を描いているでしょう</h2>
             <div id="draw-status" class="text-sm font-bold">--</div>
         </div>
-        <div class="flex-1 flex flex-col md:flex-row min-h-0">
+        <div class="flex-1 flex flex-col md:flex-row min-h-0 relative">
             <div class="w-full md:flex-1 p-2 flex flex-col items-center justify-center bg-slate-900/50 relative">
                 <div id="draw-topic-display" class="absolute top-4 z-10 hidden"><span class="bg-black/80 text-white px-6 py-2 rounded-full font-bold">お題: <span id="draw-topic-word" class="text-yellow-400"></span></span></div>
                 <div id="draw-tools" class="flex gap-2 mb-2 hidden w-full max-w-[400px] justify-center bg-slate-800 p-2 rounded-lg">
@@ -233,14 +239,15 @@
                 <div class="p-2 bg-slate-900 font-bold text-sm flex justify-between"><span id="draw-drawer-name">出題: --</span></div>
                 <div id="draw-chat-history" class="flex-1 p-2 overflow-y-auto text-sm flex flex-col gap-1"></div>
                 <div class="p-2 flex gap-1 bg-slate-900">
-                    <input type="text" id="draw-guess" class="flex-1 p-1 rounded bg-slate-800 text-white" placeholder="回答...">
+                    <input type="text" id="draw-guess" class="flex-1 p-1 rounded bg-slate-800 text-white focus:outline-none focus:border-blue-500 border border-transparent" placeholder="回答...">
                     <button onclick="sendDrawGuess()" class="px-3 bg-blue-600 rounded text-sm font-bold">送信</button>
                 </div>
             </div>
-        </div>
-        <div id="draw-result-view" class="absolute inset-0 bg-black/80 hidden flex-col items-center justify-center z-50">
-            <h3 id="draw-winner-text" class="text-4xl font-bold text-yellow-400 mb-4">--</h3>
-            <div id="draw-play-again"></div>
+            
+            <div id="draw-result-view" class="absolute inset-0 bg-black/90 hidden flex-col items-center justify-center z-50 p-6 text-center">
+                <h3 id="draw-winner-text" class="text-4xl font-bold text-white mb-6 leading-relaxed">--</h3>
+                <div id="draw-play-again" class="w-full max-w-sm"></div>
+            </div>
         </div>
     </div>
 
@@ -249,29 +256,37 @@
 
     <script>
         // --- 共通システム ---
-        const APP_PREFIX = 'gamelounge-v3-';
-        let localData = JSON.parse(localStorage.getItem('lgData3')) || { name: '', role: 'unverified' };
+        const APP_PREFIX = 'gamelounge-v4-';
+        let localData = JSON.parse(localStorage.getItem('lgData4')) || { name: '', role: 'unverified' };
         let myPeer = null, connections = [], hostConnection = null, isHost = false, players = [], currentGame = null;
 
-        window.onload = () => { if(localData.name){ showScreen('screen-connect'); document.getElementById('global-header').classList.remove('hidden'); } else showScreen('screen-setup'); };
+        window.onload = () => { if(localData.name){ showScreen('screen-connect'); } else showScreen('screen-setup'); };
+        
         function showToast(msg, type="info") {
             const c = document.getElementById('toast-container'), t = document.createElement('div');
             t.className = `toast-enter text-white px-4 py-3 rounded-lg shadow-lg text-sm font-bold flex gap-2 border border-white/20 backdrop-blur-md ${type==="error"?"bg-red-500/90":type==="success"?"bg-emerald-500/90":"bg-slate-700/90"}`;
             t.innerHTML = `<span>${msg}</span>`; c.appendChild(t);
             setTimeout(() => { t.style.opacity=0; t.style.transition='opacity 0.3s'; setTimeout(()=>t.remove(),300); }, 3000);
         }
+
         function showScreen(id) {
             document.querySelectorAll('body > div[id^="screen-"]').forEach(e => e.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
-            if(id !== 'screen-setup') document.getElementById('global-header').classList.remove('hidden');
+            
+            // ★ 設定ボタンはホーム(setup/connect)のみ表示
+            if(id === 'screen-setup' || id === 'screen-connect') {
+                document.getElementById('global-header').classList.remove('hidden');
+            } else {
+                document.getElementById('global-header').classList.add('hidden');
+            }
             updateHostUI();
         }
         function updateHostUI() { document.querySelectorAll('.host-only').forEach(e => isHost ? e.classList.remove('hidden') : e.classList.add('hidden')); }
 
-        // --- プロフィール・設定 ---
+        // --- プロフィール ---
         function finishSetup() {
             const n = document.getElementById('setup-player-name').value.trim(); if(!n) return showToast("名前を入力してください","error");
-            localData.name = n; localStorage.setItem('lgData3', JSON.stringify(localData)); showScreen('screen-connect');
+            localData.name = n; localStorage.setItem('lgData4', JSON.stringify(localData)); showScreen('screen-connect');
         }
         function openProfileSettings() {
             document.getElementById('setting-player-name').value = localData.name;
@@ -284,46 +299,20 @@
         function closeProfileSettings() { document.getElementById('modal-profile').close(); }
         function saveProfileSettings() {
             localData.name = document.getElementById('setting-player-name').value.trim() || 'ゲスト';
-            localStorage.setItem('lgData3', JSON.stringify(localData)); closeProfileSettings();
+            localStorage.setItem('lgData4', JSON.stringify(localData)); closeProfileSettings();
             if(isHost) { players.find(p=>p.id===myPeer.id).name = localData.name; broadcast({type:'SYNC_PLAYERS',players}); renderPlayerList(); }
             else if(hostConnection) hostConnection.send({type:'UPDATE_INFO', name:localData.name});
         }
-        function attemptAdmin() {
-            if(prompt("パスワード:")==="9999999999") { localData.role="admin"; localStorage.setItem('lgData3',JSON.stringify(localData)); showToast("管理者になりました","success"); closeProfileSettings(); openProfileSettings(); }
-        }
+        function attemptAdmin() { if(prompt("パスワード:")==="9999999999") { localData.role="admin"; localStorage.setItem('lgData4',JSON.stringify(localData)); showToast("管理者になりました","success"); closeProfileSettings(); openProfileSettings(); } }
 
-        // --- 管理者特権 (認証解除 / 乗っ取り) ---
-        function unverifyPlayer(pid) {
-            if(localData.role!=='admin' || !isHost) return;
-            const p = players.find(x=>x.id===pid); if(p){ p.role='unverified'; broadcast({type:'SYNC_PLAYERS',players}); broadcast({type:'UNVERIFIED', target:pid}); renderPlayerList(); showToast("解除しました"); }
-        }
-        function verifyPlayer(pid) {
-            if(localData.role!=='admin' || !isHost) return;
-            const p = players.find(x=>x.id===pid); if(p){ p.role='verified'; broadcast({type:'SYNC_PLAYERS',players}); broadcast({type:'VERIFIED', target:pid}); renderPlayerList(); showToast("認証しました","success"); }
-        }
-        function hijackHost() {
-            if(localData.role!=='admin' || isHost) return;
-            if(!confirm("ホスト権限を乗っ取りますか？全員が再接続されます。")) return;
-            const newPin = Math.floor(10000+Math.random()*90000).toString();
-            hostConnection.send({ type: 'HIJACK_CMD', newPin }); // ホストに命令
-            setTimeout(() => { doMigration(newPin); }, 500); // 自身は新ホストになる
-        }
-
-        // --- P2P通信 ---
+        // --- P2P接続 ---
         function setOverlay(show, text="...") { document.getElementById('connecting-overlay').classList.toggle('hidden',!show); document.getElementById('connecting-text').innerText=text; }
         function copyPin() { navigator.clipboard.writeText(document.getElementById('room-pin-display').innerText.replace('PIN: ','')); showToast("PINをコピーしました"); }
         function disconnectLobby() { if(myPeer)myPeer.destroy(); isHost=false; currentGame=null; showScreen('screen-connect'); }
-        
-        function doMigration(newPin) {
-            if(myPeer) myPeer.destroy();
-            // 自分が管理者の場合、新しく部屋を作る
-            if(localData.role === 'admin') { setTimeout(()=>{ document.getElementById('join-pin').value=newPin; createRoom(newPin); }, 1000); }
-            else { setTimeout(()=>{ document.getElementById('join-pin').value=newPin; joinRoom(newPin); }, 1000); }
-        }
 
-        function createRoom(forcePin = null) {
+        function createRoom() {
             setOverlay(true, "作成中...");
-            const pin = forcePin || Math.floor(10000+Math.random()*90000).toString();
+            const pin = Math.floor(10000+Math.random()*90000).toString();
             myPeer = new Peer(APP_PREFIX + pin);
             myPeer.on('open', () => {
                 isHost=true; connections=[]; players=[{id:myPeer.id, name:localData.name, role:localData.role}];
@@ -335,29 +324,28 @@
                 c.on('data', d => {
                     if(d.type==='JOIN') { players.push({id:c.peer, name:d.name, role:d.role}); connections.push(c); broadcast({type:'SYNC_PLAYERS',players}); renderPlayerList(); }
                     else if(d.type==='UPDATE_INFO') { const p=players.find(x=>x.id===c.peer); if(p){p.name=d.name; broadcast({type:'SYNC_PLAYERS',players}); renderPlayerList();} }
-                    else if(d.type==='HIJACK_CMD') { broadcast({type:'MIGRATE', newPin:d.newPin}); setTimeout(()=>doMigration(d.newPin), 500); } // 移行命令受信
                     else handleHostMsg(c.peer, d);
                 });
                 c.on('close', ()=>{
                     players=players.filter(x=>x.id!==c.peer); connections=connections.filter(x=>x.peer!==c.peer);
                     broadcast({type:'SYNC_PLAYERS',players}); renderPlayerList();
+                    // ゲーム中の切断対応チェック
+                    if(currentGame==='ten') checkTenAns();
+                    if(currentGame==='ww') { checkWWActs(); checkWWVotes(); }
                 });
             });
             myPeer.on('error', e => { setOverlay(false); showToast("エラー: "+e.type,"error"); });
         }
         function broadcast(d) { connections.forEach(c=>{if(c.open)c.send(d);}); }
 
-        function joinRoom(forcePin = null) {
-            const pin = forcePin || document.getElementById('join-pin').value; if(pin.length!==5) return showToast("5桁のPINを入力","error");
+        function joinRoom() {
+            const pin = document.getElementById('join-pin').value; if(pin.length!==5) return showToast("5桁のPINを入力","error");
             setOverlay(true, "接続中..."); myPeer=new Peer();
             myPeer.on('open', () => {
                 hostConnection = myPeer.connect(APP_PREFIX+pin,{reliable:true});
                 hostConnection.on('data', d => {
                     if(d.type==='WELCOME') hostConnection.send({type:'JOIN',name:localData.name,role:localData.role});
                     else if(d.type==='SYNC_PLAYERS') { players=d.players; renderPlayerList(); if(!isHost && !currentGame) {setOverlay(false); showScreen('screen-lobby'); document.getElementById('room-pin-display').innerText=`PIN: ${pin}`;} }
-                    else if(d.type==='VERIFIED') {if(d.target===myPeer.id){localData.role='verified'; localStorage.setItem('lgData3',JSON.stringify(localData));}}
-                    else if(d.type==='UNVERIFIED') {if(d.target===myPeer.id){localData.role='unverified'; localStorage.setItem('lgData3',JSON.stringify(localData)); showToast("認証が解除されました","error");}}
-                    else if(d.type==='MIGRATE') { showToast("ホストが移行します","info"); doMigration(d.newPin); }
                     else handleClientMsg(d);
                 });
                 hostConnection.on('close', ()=>{ if(!document.getElementById('screen-connect').classList.contains('hidden')) return; showToast("ホストが切断されました","error"); disconnectLobby(); });
@@ -368,17 +356,9 @@
         function renderPlayerList() {
             const list = document.getElementById('player-list'); list.innerHTML=''; document.getElementById('player-count').innerText=players.length;
             players.forEach(p => {
-                const isMe = p.id===myPeer.id; const isPHost = players[0].id===p.id;
-                let b='', btn='';
+                const isMe = p.id===myPeer.id; let b='';
                 if(p.role==='admin') b=document.getElementById('icon-admin').innerHTML; else if(p.role==='verified') b=document.getElementById('icon-verified').innerHTML;
-                
-                if(isHost && localData.role==='admin' && !isMe) {
-                    if(p.role==='unverified') btn=`<button onclick="verifyPlayer('${p.id}')" class="ml-auto text-xs bg-emerald-600 px-2 py-1 rounded">認証</button>`;
-                    if(p.role==='verified') btn=`<button onclick="unverifyPlayer('${p.id}')" class="ml-auto text-xs bg-red-600 px-2 py-1 rounded">解除</button>`;
-                } else if (!isHost && localData.role==='admin' && isPHost) {
-                    btn=`<button onclick="hijackHost()" class="ml-auto text-xs bg-yellow-600 text-white px-2 py-1 rounded">乗っ取る</button>`;
-                }
-                list.innerHTML += `<div class="flex items-center gap-2 bg-slate-900 p-2 rounded border border-slate-700"><div class="w-8 h-8 rounded bg-indigo-500 flex items-center justify-center font-bold text-white">${p.name[0]}</div><div class="flex-1 flex items-center min-w-0"><span class="truncate">${p.name}</span>${b}${btn}</div></div>`;
+                list.innerHTML += `<div class="flex items-center gap-2 bg-slate-900 p-2 rounded border border-slate-700"><div class="w-8 h-8 rounded bg-indigo-500 flex items-center justify-center font-bold text-white">${p.name[0]}</div><div class="flex-1 flex items-center min-w-0"><span class="truncate">${p.name}</span>${b}</div></div>`;
             });
         }
 
@@ -389,7 +369,7 @@
         }
         function clientStartGame(gId) {
             currentGame = gId; document.querySelectorAll('.game-screen').forEach(e=>e.classList.add('hidden')); showScreen('screen-game-'+gId);
-            injectPlayAgain('ten'); injectPlayAgain('ww'); injectPlayAgain('drawing'); injectPlayAgain('bomb');
+            injectPlayAgain('ten'); injectPlayAgain('ww'); injectPlayAgain('draw'); injectPlayAgain('bomb');
             if(gId==='ten') resetTen(); if(gId==='ww') resetWW(); if(gId==='drawing') resetDraw(); if(gId==='bomb') resetBomb();
         }
         function endGame() { if(!isHost)return; currentGame=null; broadcast({type:'GAME_END'}); showScreen('screen-lobby'); }
@@ -398,11 +378,11 @@
         function injectPlayAgain(prefix) {
             const tpl = document.getElementById('tpl-play-again').content.cloneNode(true);
             const container = document.getElementById(`${prefix}-play-again`);
-            if(container) { container.innerHTML=''; container.appendChild(tpl); }
+            if(container) { container.innerHTML=''; container.appendChild(tpl); updateHostUI(); }
         }
 
         function handleHostMsg(pid, d) {
-            if(currentGame==='ten' && d.type==='TEN_ANS') { tenState.ans[pid]=d.ans; checkTenAns(); }
+            if(currentGame==='ten' && d.type==='TEN_ANS') { tenState.ans[pid]=d.ans; broadcast({type:'TEN_SUB_UPDATE', pid}); updateTenStatus(); checkTenAns(); }
             if(currentGame==='ww' && d.type==='WW_ACT') { wwState.acts[pid]=d.target; checkWWActs(); }
             if(currentGame==='ww' && d.type==='WW_VOTE') { wwState.votes[pid]=d.target; checkWWVotes(); }
             if(currentGame==='bomb' && d.type==='BOMB_PASS') { hostBombPass(d.target); }
@@ -414,6 +394,7 @@
         function handleClientMsg(d) {
             if(d.type==='GAME_START') clientStartGame(d.gId); if(d.type==='GAME_END') {currentGame=null;showScreen('screen-lobby');}
             if(d.type==='TEN_TOPIC') { resetTen(); document.getElementById('ten-topic').innerText=d.topic; }
+            if(d.type==='TEN_SUB_UPDATE') { tenState.ans[d.pid]='submitted'; updateTenStatus(); }
             if(d.type==='TEN_GATHERED') clientTenJudgeWait(d.ansArray);
             if(d.type==='TEN_RES') clientTenRes(d.match, d.ansArray);
             if(d.type==='WW_ROLE') clientWWRole(d);
@@ -425,11 +406,11 @@
             if(d.type==='DRAW_START') clientDrawStart(d);
             if(d.type==='DRAW_LINE') drawExec(d); if(d.type==='DRAW_CLEAR') ctx.clearRect(0,0,400,400);
             if(d.type==='DRAW_CHAT') drawChat(d.sender, d.text, d.win);
-            if(d.type==='DRAW_WIN') { document.getElementById('draw-result-view').classList.remove('hidden'); document.getElementById('draw-result-view').classList.add('flex'); document.getElementById('draw-winner-text').innerText=`正解: ${d.word}\n勝者: ${d.winner}`; }
+            if(d.type==='DRAW_WIN') { document.getElementById('draw-result-view').classList.remove('hidden'); document.getElementById('draw-result-view').classList.add('flex'); document.getElementById('draw-winner-text').innerHTML=`<span class='text-yellow-400'>${d.winner}</span> が正解！<br>答え: ${d.word}`; injectPlayAgain('draw'); }
         }
 
-        // --- Game 1: 十テン (手書き対応/ホスト判定) ---
-        let tenState = { mode: 'text', ans: {} }; // ans = {id: 'text...' or 'data:image...'}
+        // --- Game 1: 十テン ---
+        let tenState = { mode: 'text', ans: {} };
         const canvasTen = document.getElementById('ten-canvas'); const ctxTen = canvasTen.getContext('2d');
         let tDraw = { isDraw: false, x:0, y:0 };
         
@@ -440,17 +421,23 @@
         canvasTen.addEventListener('touchend', ()=>tDraw.isDraw=false);
 
         function initTenHost() { tenState.ans={}; const t=["ドラえもん","アンパンマン","富士山","りんご"][Math.floor(Math.random()*4)]; broadcast({type:'TEN_TOPIC', topic:t}); resetTen(); document.getElementById('ten-topic').innerText=t; }
-        function resetTen() { tenState.mode='text'; switchTenMode('text'); ctxTen.clearRect(0,0,300,300); document.getElementById('ten-ans-text').value=''; document.getElementById('ten-input-view').classList.remove('hidden'); document.getElementById('ten-judge-view').classList.add('hidden'); document.getElementById('ten-result-view').classList.add('hidden'); document.getElementById('ten-status').innerText='進行中'; }
+        function resetTen() { tenState.ans={}; tenState.mode='text'; switchTenMode('text'); ctxTen.clearRect(0,0,300,300); document.getElementById('ten-ans-text').value=''; document.getElementById('ten-input-view').classList.remove('hidden'); document.getElementById('btn-ten-submit').classList.remove('hidden'); document.getElementById('ten-judge-view').classList.add('hidden'); document.getElementById('ten-result-view').classList.add('hidden'); document.getElementById('ten-status').innerText='進行中'; updateTenStatus(); }
         function switchTenMode(m) { tenState.mode=m; document.getElementById('ten-mode-text').classList.toggle('hidden',m!=='text'); document.getElementById('ten-mode-draw').classList.toggle('hidden',m!=='draw'); document.getElementById('btn-ten-text').className=m==='text'?'px-4 py-1 bg-indigo-600 rounded-l-lg font-bold text-sm text-white':'px-4 py-1 bg-slate-700 rounded-l-lg font-bold text-sm text-gray-300'; document.getElementById('btn-ten-draw').className=m==='draw'?'px-4 py-1 bg-indigo-600 rounded-r-lg font-bold text-sm text-white':'px-4 py-1 bg-slate-700 rounded-r-lg font-bold text-sm text-gray-300'; }
         function clearTenCanvas() { ctxTen.clearRect(0,0,300,300); }
         function submitTenAns() {
             let ans = tenState.mode==='text' ? document.getElementById('ten-ans-text').value.trim() : canvasTen.toDataURL('image/png');
             if(tenState.mode==='text' && !ans) return showToast("入力して","error");
-            document.getElementById('ten-input-view').classList.add('hidden'); document.getElementById('ten-status').innerText='待機中';
-            if(isHost){ tenState.ans[myPeer.id]=ans; checkTenAns(); } else hostConnection.send({type:'TEN_ANS', ans});
+            document.getElementById('btn-ten-submit').classList.add('hidden'); document.getElementById('ten-status').innerText='待機中';
+            if(isHost){ tenState.ans[myPeer.id]=ans; broadcast({type:'TEN_SUB_UPDATE', pid:myPeer.id}); updateTenStatus(); checkTenAns(); } else { tenState.ans[myPeer.id]='submitted'; updateTenStatus(); hostConnection.send({type:'TEN_ANS', ans}); }
+        }
+        function updateTenStatus() {
+            const list = document.getElementById('ten-submit-status'); list.innerHTML='';
+            players.forEach(p => { const isSub = !!tenState.ans[p.id]; list.innerHTML += `<div>${p.name}: ${isSub?'<span class="text-emerald-400">✅ 提出済</span>':'<span class="text-gray-400">💭 考え中...</span>'}</div>`; });
         }
         function checkTenAns() {
-            if(!isHost) return; if(Object.keys(tenState.ans).length === players.length) {
+            if(!isHost) return;
+            const answeredCount = Object.keys(tenState.ans).filter(id => players.find(p=>p.id===id)).length; // 離脱者を考慮
+            if(answeredCount === players.length && players.length > 0) {
                 const arr = players.map(p=>({name:p.name, ans:tenState.ans[p.id]}));
                 broadcast({type:'TEN_GATHERED', ansArray:arr}); clientTenJudgeWait(arr);
             }
@@ -459,85 +446,83 @@
             document.getElementById('ten-input-view').classList.add('hidden'); document.getElementById('ten-judge-view').classList.remove('hidden'); document.getElementById('ten-judge-view').classList.add('flex');
             const list = document.getElementById('ten-judge-list'); list.innerHTML='';
             arr.forEach(a=>{
-                const c = a.ans.startsWith('data:image') ? `<img src="${a.ans}" class="w-full bg-white rounded border">` : `<div class="text-xl font-bold py-4">${a.ans}</div>`;
-                list.innerHTML += `<div class="flex flex-col items-center bg-slate-800 p-2 rounded"><span class="text-sm text-gray-400 mb-1">${a.name}</span>${c}</div>`;
+                const c = a.ans.startsWith('data:image') ? `<img src="${a.ans}" class="w-full bg-white rounded border border-gray-400">` : `<div class="text-xl font-bold py-4">${a.ans}</div>`;
+                list.innerHTML += `<div class="flex flex-col items-center bg-slate-800 p-2 rounded border border-slate-600"><span class="text-sm text-emerald-300 mb-1">${a.name}</span>${c}</div>`;
             });
         }
-        function hostDecideTen(match) {
-            const arr = players.map(p=>({name:p.name, ans:tenState.ans[p.id]}));
-            broadcast({type:'TEN_RES', match, ansArray:arr}); clientTenRes(match, arr);
-        }
+        function hostDecideTen(match) { const arr = players.map(p=>({name:p.name, ans:tenState.ans[p.id]})); broadcast({type:'TEN_RES', match, ansArray:arr}); clientTenRes(match, arr); }
         function clientTenRes(match, arr) {
             document.getElementById('ten-judge-view').classList.add('hidden'); document.getElementById('ten-result-view').classList.remove('hidden'); document.getElementById('ten-result-view').classList.add('flex');
             const t = document.getElementById('ten-result-title'); t.innerText=match?"🎉 全員一致！":"💥 不一致"; t.className=match?"text-4xl font-extrabold text-emerald-400":"text-4xl font-extrabold text-red-500";
             const list = document.getElementById('ten-result-list'); list.innerHTML='';
             arr.forEach(a=>{
                 const c = a.ans.startsWith('data:image') ? `<img src="${a.ans}" class="w-full bg-white rounded">` : `<div class="text-lg font-bold">${a.ans}</div>`;
-                list.innerHTML += `<div class="flex flex-col items-center bg-slate-800 p-2 rounded"><span class="text-sm mb-1">${a.name}</span>${c}</div>`;
+                list.innerHTML += `<div class="flex flex-col items-center bg-slate-800 p-2 rounded"><span class="text-sm text-gray-300 mb-1">${a.name}</span>${c}</div>`;
             });
         }
 
-        // --- Game 2: 人狼 (ワンナイト / スタンダード統合) ---
-        let wwState = { type: 'onenight', roles: {}, acts: {}, votes: {}, phase: '', timer: null, alive: [] };
+        // --- Game 2: 人狼 ---
+        let wwState = { type: 'onenight', roles: {}, acts: {}, votes: {}, phase: '', timer: null, alive: [], dayTime: 60 };
         function openWWSettings(type) { wwState.type = type; document.getElementById('ww-setup-title').innerText = type==='onenight'?'ワンナイト人狼設定':'人狼設定'; document.querySelectorAll('.ww-standard-only').forEach(e=>e.classList.toggle('hidden', type==='onenight')); document.getElementById('modal-ww-settings').showModal(); }
         function startWerewolf() {
             document.getElementById('modal-ww-settings').close();
-            const w=parseInt(document.getElementById('ww-set-wolf').value)||1, s=parseInt(document.getElementById('ww-set-seer').value)||0;
-            const k=wwState.type==='standard'?(parseInt(document.getElementById('ww-set-knight').value)||0):0;
-            const m=wwState.type==='standard'?(parseInt(document.getElementById('ww-set-madman').value)||0):0;
+            const w=parseInt(document.getElementById('ww-set-wolf').value)||1, s=parseInt(document.getElementById('ww-set-seer').value)||0, t=parseInt(document.getElementById('ww-set-time').value)||60;
+            const k=wwState.type==='standard'?(parseInt(document.getElementById('ww-set-knight').value)||0):0, m=wwState.type==='standard'?(parseInt(document.getElementById('ww-set-madman').value)||0):0;
+            wwState.dayTime = t;
             let pool=[]; for(let i=0;i<w;i++)pool.push('wolf'); for(let i=0;i<s;i++)pool.push('seer'); for(let i=0;i<k;i++)pool.push('knight'); for(let i=0;i<m;i++)pool.push('madman');
-            while(pool.length < players.length) pool.push('villager');
-            pool.sort(()=>Math.random()-0.5); wwState.roles={}; wwState.alive=players.map(p=>p.id); wwState.acts={}; wwState.votes={};
-            players.forEach((p,i)=> { wwState.roles[p.id]=pool[i]; const data={type:'WW_ROLE', gType:wwState.type, role:pool[i], targetIds: players.filter(x=>x.id!==p.id).map(x=>x.id)}; if(p.id===myPeer.id)clientWWRole(data); else connections.find(c=>c.peer===p.id)?.send(data); });
-            hostStartGame('ww'); // Switch screen
+            while(pool.length < players.length) pool.push('villager'); pool.sort(()=>Math.random()-0.5);
+            wwState.roles={}; wwState.alive=players.map(p=>p.id); wwState.acts={}; wwState.votes={};
+            players.forEach((p,i)=> { wwState.roles[p.id]=pool[i]; const data={type:'WW_ROLE', gType:wwState.type, role:pool[i], time:t, targetIds: players.filter(x=>x.id!==p.id).map(x=>x.id)}; if(p.id===myPeer.id)clientWWRole(data); else connections.find(c=>c.peer===p.id)?.send(data); });
+            hostStartGame('ww');
         }
-        function resetWW() { document.getElementById('ww-night-view').classList.remove('hidden'); document.getElementById('ww-day-view').classList.add('hidden'); document.getElementById('ww-result-view').classList.add('hidden'); document.getElementById('ww-vote-area').classList.add('hidden'); document.getElementById('ww-night-action').classList.add('hidden'); document.getElementById('ww-night-waiting').classList.add('hidden'); }
+        function resetWW() { document.getElementById('ww-timer').innerText="00:00"; document.getElementById('ww-night-view').classList.remove('hidden'); document.getElementById('ww-day-view').classList.add('hidden'); document.getElementById('ww-result-view').classList.add('hidden'); document.getElementById('ww-vote-area').classList.add('hidden'); document.getElementById('ww-night-action').classList.add('hidden'); document.getElementById('ww-night-waiting').classList.add('hidden'); }
         function clientWWRole(d) {
             resetWW(); document.getElementById('ww-header-title').innerText=d.gType==='onenight'?'🐺 ワンナイト人狼':'🌕 人狼ゲーム';
             const r=d.role, e=document.getElementById('ww-my-role'), a=document.getElementById('ww-night-action'), desc=document.getElementById('ww-action-desc'), list=document.getElementById('ww-target-list');
             if(r==='wolf'){e.innerText='🐺 人狼'; e.className='text-4xl font-extrabold text-red-500';} else if(r==='seer'){e.innerText='🔮 占い師'; e.className='text-4xl font-extrabold text-purple-400';} else if(r==='knight'){e.innerText='🛡️ 騎士'; e.className='text-4xl font-extrabold text-blue-300';} else if(r==='madman'){e.innerText='🃏 狂人'; e.className='text-4xl font-extrabold text-pink-400';} else {e.innerText='🧑‍🌾 市民'; e.className='text-4xl font-extrabold text-green-400';}
             
-            // 行動要求判定
             let needsAction=false; list.innerHTML='';
             if(r==='seer' || r==='knight' || (r==='wolf' && d.gType==='standard')) {
                 needsAction=true; desc.innerText = r==='seer'?'占う相手を選んでください':r==='knight'?'守る相手を選んでください':'襲撃する相手を選んでください';
-                d.targetIds.forEach(id => { const n=players.find(x=>x.id===id)?.name; list.innerHTML+=`<button onclick="submitWWAct('${id}')" class="p-2 bg-slate-800 rounded font-bold">${n}</button>`; });
+                d.targetIds.forEach(id => { const n=players.find(x=>x.id===id)?.name; list.innerHTML+=`<button onclick="submitWWAct('${id}')" class="p-3 bg-slate-800 hover:bg-slate-700 rounded-xl font-bold border border-slate-600">${n}</button>`; });
             }
             if(needsAction) { a.classList.remove('hidden'); } else { document.getElementById('ww-night-waiting').classList.remove('hidden'); if(isHost){wwState.acts[myPeer.id]='none';checkWWActs();} else hostConnection.send({type:'WW_ACT', target:'none'}); }
         }
         function submitWWAct(tid) { document.getElementById('ww-night-action').classList.add('hidden'); document.getElementById('ww-night-waiting').classList.remove('hidden'); if(isHost){wwState.acts[myPeer.id]=tid; checkWWActs();} else hostConnection.send({type:'WW_ACT', target:tid}); }
         function checkWWActs() {
-            if(!isHost) return; if(Object.keys(wwState.acts).length === wwState.alive.length) {
-                // 夜の処理 (Standard: Wolf kills. Knight protects. Seer informs. | OneNight: no kill)
+            if(!isHost) return; 
+            const actedCount = Object.keys(wwState.acts).filter(id => players.find(p=>p.id===id)).length;
+            if(actedCount === players.length && players.length > 0) {
                 let killed = null;
                 if(wwState.type==='standard') {
-                    const wActs = Object.keys(wwState.acts).filter(id=>wwState.roles[id]==='wolf'); if(wActs.length>0) killed=wwState.acts[wActs[0]]; // 第一人狼のタゲ
-                    const kActs = Object.keys(wwState.acts).filter(id=>wwState.roles[id]==='knight'); if(kActs.length>0 && wwState.acts[kActs[0]]===killed) killed=null; // GJ
+                    const wActs = Object.keys(wwState.acts).filter(id=>wwState.roles[id]==='wolf'); if(wActs.length>0) killed=wwState.acts[wActs[0]];
+                    const kActs = Object.keys(wwState.acts).filter(id=>wwState.roles[id]==='knight'); if(kActs.length>0 && wwState.acts[kActs[0]]===killed) killed=null;
                 }
-                // 占いの結果通知
                 const sActs = Object.keys(wwState.acts).filter(id=>wwState.roles[id]==='seer');
                 sActs.forEach(sId => { const t=wwState.acts[sId]; const isW=wwState.roles[t]==='wolf'; const msg=`占いの結果：${players.find(x=>x.id===t)?.name} は ${isW?'人狼です':'人狼ではありません'}`; if(sId===myPeer.id)showToast(msg); else connections.find(c=>c.peer===sId)?.send({type:'WW_DAY', sysMsg:msg}); });
                 
                 if(killed) wwState.alive = wwState.alive.filter(id=>id!==killed);
                 const startData = { type:'WW_DAY', alive:wwState.alive, killed }; broadcast(startData); clientWWDay(startData);
                 
-                // 昼タイマー開始
-                let t=60; wwState.timer=setInterval(()=>{ t--; const str=`00:${String(t).padStart(2,'0')}`; broadcast({type:'WW_TIME', str}); document.getElementById('ww-timer').innerText=str; if(t<=0){ clearInterval(wwState.timer); broadcast({type:'WW_DAY', phase:'vote'}); clientWWDay({phase:'vote'}); } }, 1000);
+                let t = wwState.dayTime || 60;
+                clearInterval(wwState.timer); // 念のため
+                wwState.timer=setInterval(()=>{ t--; const str=`00:${String(t).padStart(2,'0')}`; broadcast({type:'WW_TIME', str}); document.getElementById('ww-timer').innerText=str; if(t<=0){ clearInterval(wwState.timer); broadcast({type:'WW_DAY', phase:'vote'}); clientWWDay({phase:'vote'}); } }, 1000);
             }
         }
         function clientWWDay(d) {
             if(d.sysMsg) showToast(d.sysMsg, "info");
             if(d.alive) { document.getElementById('ww-night-view').classList.add('hidden'); document.getElementById('ww-day-view').classList.remove('hidden'); document.getElementById('ww-day-view').classList.add('flex'); if(d.killed && d.killed===myPeer.id) showToast("あなたは襲撃されました...","error"); }
             if(d.phase==='vote') {
-                const alive = isHost ? wwState.alive : []; // 厳密にはクライアントもaliveを知るべきだが簡易化
                 document.getElementById('ww-vote-area').classList.remove('hidden'); document.getElementById('ww-vote-area').classList.add('flex');
                 const list = document.getElementById('ww-vote-list'); list.innerHTML='';
-                players.forEach(p=>{ if(p.id!==myPeer.id) list.innerHTML+=`<button onclick="submitWWVote('${p.id}')" class="p-3 bg-red-900/50 hover:bg-red-900 rounded font-bold border border-red-700">${p.name}</button>`; });
+                players.forEach(p=>{ if(p.id!==myPeer.id) list.innerHTML+=`<button onclick="submitWWVote('${p.id}')" class="p-3 bg-red-900/50 hover:bg-red-600 rounded-xl font-bold border border-red-700">${p.name}</button>`; });
             }
         }
         function submitWWVote(tid) { document.getElementById('ww-vote-area').classList.add('hidden'); if(isHost){wwState.votes[myPeer.id]=tid;checkWWVotes();} else hostConnection.send({type:'WW_VOTE', target:tid}); }
         function checkWWVotes() {
-            if(!isHost) return; if(Object.keys(wwState.votes).length >= wwState.alive.length) { // 死者も投票できちゃう簡易版
+            if(!isHost) return; 
+            const votedCount = Object.keys(wwState.votes).filter(id => players.find(p=>p.id===id)).length;
+            if(votedCount === players.length && players.length > 0) {
                 let counts={}; Object.values(wwState.votes).forEach(vid=>{counts[vid]=(counts[vid]||0)+1});
                 let max=-1, exId=null; for(let id in counts){ if(counts[id]>max){max=counts[id];exId=id;}else if(counts[id]===max){exId=null;} }
                 broadcast({type:'WW_RES', exiled:exId, roles:wwState.roles}); clientWWRes({exiled:exId, roles:wwState.roles});
@@ -548,42 +533,50 @@
             let wDie=false, n=players.find(p=>p.id===d.exiled)?.name;
             if(d.exiled) { document.getElementById('ww-exiled-name').innerText=`${n} 追放`; if(d.roles[d.exiled]==='wolf') wDie=true; } else document.getElementById('ww-exiled-name').innerText='追放者なし';
             const t=document.getElementById('ww-result-title');
-            if(wDie) { t.innerText='🎉 市民陣営の勝利！'; t.className='text-3xl font-extrabold text-green-400'; } else { t.innerText='🐺 人狼陣営の勝利！'; t.className='text-3xl font-extrabold text-red-500'; }
+            if(wDie) { t.innerText='🎉 市民陣営の勝利！'; t.className='text-3xl font-extrabold text-emerald-400'; } else { t.innerText='🐺 人狼陣営の勝利！'; t.className='text-3xl font-extrabold text-red-500'; }
             const rev=document.getElementById('ww-roles-reveal'); rev.innerHTML='';
-            players.forEach(p=>{ const r=d.roles[p.id]; let s=''; if(r==='wolf')s='🐺';else if(r==='seer')s='🔮';else if(r==='knight')s='🛡️';else if(r==='madman')s='🃏';else s='🧑‍🌾'; rev.innerHTML+=`<div class="text-sm">${s} ${p.name}</div>`; });
+            players.forEach(p=>{ const r=d.roles[p.id]; let s=''; if(r==='wolf')s='🐺';else if(r==='seer')s='🔮';else if(r==='knight')s='🛡️';else if(r==='madman')s='🃏';else s='🧑‍🌾'; rev.innerHTML+=`<div class="text-sm border-b border-slate-700/50 pb-1">${s} <span class="text-white font-bold">${p.name}</span></div>`; });
         }
 
-        // --- Game 3: 爆弾ゲーム (Hot Potato) ---
+        // --- Game 3: 爆弾ゲーム ---
         let bombState = { holder: null, timerId: null };
-        function initBombHost() { bombState.holder=players[Math.floor(Math.random()*players.length)].id; broadcast({type:'BOMB_STATE', holder:bombState.holder}); clientBombState({holder:bombState.holder}); const time=10000+Math.random()*15000; bombState.timerId=setTimeout(()=>{ broadcast({type:'BOMB_EXP', loser:bombState.holder}); clientBombExp(bombState.holder); }, time); }
+        function initBombHost() { bombState.holder=players[Math.floor(Math.random()*players.length)].id; broadcast({type:'BOMB_STATE', holder:bombState.holder}); clientBombState({holder:bombState.holder}); const time=10000+Math.random()*15000; clearTimeout(bombState.timerId); bombState.timerId=setTimeout(()=>{ broadcast({type:'BOMB_EXP', loser:bombState.holder}); clientBombExp(bombState.holder); }, time); }
         function resetBomb() { document.getElementById('bomb-view').classList.remove('hidden'); document.getElementById('bomb-view').classList.add('flex'); document.getElementById('bomb-result').classList.add('hidden'); }
         function clientBombState(d) {
             resetBomb(); const isMe = d.holder===myPeer.id; const icon=document.getElementById('bomb-icon'), stat=document.getElementById('bomb-status'), area=document.getElementById('bomb-pass-area');
             icon.className = isMe ? "text-9xl bomb-active" : "text-9xl"; stat.innerText = isMe ? "やばい！あなたに爆弾が！" : `${players.find(p=>p.id===d.holder)?.name} が爆弾を持っています`; stat.className=isMe?"text-2xl font-bold text-red-400":"text-2xl font-bold text-white";
             area.classList.toggle('hidden', !isMe); area.style.display=isMe?'flex':'none';
-            if(isMe) { const list=document.getElementById('bomb-target-list'); list.innerHTML=''; players.forEach(p=>{ if(p.id!==myPeer.id) list.innerHTML+=`<button onclick="passBomb('${p.id}')" class="py-4 bg-red-600 rounded-xl font-bold">${p.name}</button>`; }); }
+            if(isMe) { const list=document.getElementById('bomb-target-list'); list.innerHTML=''; players.forEach(p=>{ if(p.id!==myPeer.id) list.innerHTML+=`<button onclick="passBomb('${p.id}')" class="py-4 bg-red-600 rounded-xl font-bold text-lg shadow-lg">${p.name}</button>`; }); }
         }
         function passBomb(tid) { document.getElementById('bomb-pass-area').style.display='none'; if(isHost) hostBombPass(tid); else hostConnection.send({type:'BOMB_PASS', target:tid}); }
         function hostBombPass(tid) { if(document.getElementById('bomb-result').classList.contains('hidden')){ bombState.holder=tid; broadcast({type:'BOMB_STATE', holder:tid}); clientBombState({holder:tid}); } }
         function clientBombExp(loser) {
             document.getElementById('bomb-view').classList.add('hidden'); document.getElementById('bomb-result').classList.remove('hidden'); document.getElementById('bomb-result').classList.add('flex');
-            document.getElementById('bomb-loser').innerText = `${players.find(p=>p.id===loser)?.name} の負け！`;
+            document.getElementById('bomb-loser').innerText = `${players.find(p=>p.id===loser)?.name || '不明'} の負け！`;
         }
 
         // --- Game 4: お絵かき ---
-        const canvasDraw=document.getElementById('draw-canvas'), ctx=canvasDraw.getContext('2d'); let drawState={id:null, word:'', is:false, color:'black', x:0, y:0};
-        function initDrawHost() { drawState.id=players[Math.floor(Math.random()*players.length)].id; drawState.word=["りんご","猫","車","メガネ"][Math.floor(Math.random()*4)]; broadcast({type:'DRAW_START', id:drawState.id, word:drawState.word}); clientDrawStart({id:drawState.id, word:drawState.word}); }
-        function resetDraw() { ctx.clearRect(0,0,400,400); document.getElementById('draw-chat-history').innerHTML=''; document.getElementById('draw-result-view').classList.add('hidden'); document.getElementById('draw-topic-display').classList.add('hidden'); document.getElementById('draw-tools').classList.add('hidden'); }
+        const drawWordsList = [
+            {w:"りんご", a:["りんご","リンゴ","林檎","apple"]}, {w:"猫", a:["猫","ねこ","ネコ","cat"]},
+            {w:"車", a:["車","くるま","クルマ","car"]}, {w:"メガネ", a:["メガネ","めがね","眼鏡","glasses"]},
+            {w:"時計", a:["時計","とけい","トケイ"]}, {w:"自転車", a:["自転車","じてんしゃ","チャリ"]},
+            {w:"飛行機", a:["飛行機","ひこうき","ヒコウキ"]}
+        ];
+        const canvasDraw=document.getElementById('draw-canvas'), ctx=canvasDraw.getContext('2d'); let drawState={id:null, obj:null, is:false, color:'black', x:0, y:0};
+        
+        function initDrawHost() { drawState.id=players[Math.floor(Math.random()*players.length)].id; drawState.obj=drawWordsList[Math.floor(Math.random()*drawWordsList.length)]; broadcast({type:'DRAW_START', id:drawState.id, word:drawState.obj.w, obj:drawState.obj}); clientDrawStart({id:drawState.id, word:drawState.obj.w, obj:drawState.obj}); }
+        function resetDraw() { ctx.clearRect(0,0,400,400); document.getElementById('draw-chat-history').innerHTML=''; document.getElementById('draw-result-view').classList.add('hidden'); document.getElementById('draw-result-view').classList.remove('flex'); document.getElementById('draw-topic-display').classList.add('hidden'); document.getElementById('draw-tools').classList.add('hidden'); document.getElementById('draw-guess').value=''; }
         function clientDrawStart(d) {
-            resetDraw(); drawState.id=d.id; document.getElementById('draw-drawer-name').innerText=`出題: ${players.find(p=>p.id===d.id)?.name}`;
+            resetDraw(); drawState.id=d.id; drawState.obj=d.obj; document.getElementById('draw-drawer-name').innerText=`出題: ${players.find(p=>p.id===d.id)?.name}`;
             if(d.id===myPeer.id) { document.getElementById('draw-topic-display').classList.remove('hidden'); document.getElementById('draw-topic-word').innerText=d.word; document.getElementById('draw-tools').classList.remove('hidden'); document.getElementById('draw-tools').classList.add('flex'); document.getElementById('draw-status').innerText='描いてください'; } else { document.getElementById('draw-status').innerText='当ててください'; }
         }
         canvasDraw.addEventListener('mousedown', e=>{if(drawState.id!==myPeer.id)return; drawState.is=true; const r=canvasDraw.getBoundingClientRect(); drawState.x=e.clientX-r.left; drawState.y=e.clientY-r.top;});
         canvasDraw.addEventListener('mousemove', e=>{if(!drawState.is)return; const r=canvasDraw.getBoundingClientRect(); const x=e.clientX-r.left, y=e.clientY-r.top; const d={type:'DRAW_LINE', x0:drawState.x, y0:drawState.y, x1:x, y1:y, c:drawState.color}; drawExec(d); if(isHost)handleHostMsg(myPeer.id, d); else hostConnection.send(d); drawState.x=x; drawState.y=y; });
-        canvasDraw.addEventListener('mouseup', ()=>drawState.is=false); canvasDraw.addEventListener('touchstart', e=>{if(drawState.id!==myPeer.id)return; e.preventDefault(); drawState.is=true; const r=canvasDraw.getBoundingClientRect(); drawState.x=e.touches[0].clientX-r.left; drawState.y=e.touches[0].clientY-r.top;},{passive:false});
+        canvasDraw.addEventListener('mouseup', ()=>drawState.is=false); canvasDraw.addEventListener('mouseout', ()=>drawState.is=false); canvasDraw.addEventListener('touchstart', e=>{if(drawState.id!==myPeer.id)return; e.preventDefault(); drawState.is=true; const r=canvasDraw.getBoundingClientRect(); drawState.x=e.touches[0].clientX-r.left; drawState.y=e.touches[0].clientY-r.top;},{passive:false});
         canvasDraw.addEventListener('touchmove', e=>{if(!drawState.is)return; e.preventDefault(); const r=canvasDraw.getBoundingClientRect(); const x=e.touches[0].clientX-r.left, y=e.touches[0].clientY-r.top; const d={type:'DRAW_LINE', x0:drawState.x, y0:drawState.y, x1:x, y1:y, c:drawState.color}; drawExec(d); if(isHost)handleHostMsg(myPeer.id, d); else hostConnection.send(d); drawState.x=x; drawState.y=y;},{passive:false});
         canvasDraw.addEventListener('touchend', ()=>drawState.is=false);
         function drawExec(d) { ctx.beginPath(); ctx.strokeStyle=d.c; ctx.lineWidth=4; ctx.lineCap='round'; ctx.moveTo(d.x0, d.y0); ctx.lineTo(d.x1, d.y1); ctx.stroke(); }
+        
         function sendDrawGuess() {
             const t=document.getElementById('draw-guess').value.trim(); if(!t)return; document.getElementById('draw-guess').value='';
             if(drawState.id===myPeer.id) { const d={type:'DRAW_CHAT', sender:localData.name, text:t, win:false}; drawChat(d.sender, t, false); if(isHost)broadcast(d); else hostConnection.send({type:'RELAY_CHAT', msg:d}); }
@@ -591,10 +584,14 @@
         }
         function checkDrawGuess(pid, t) {
             const s=players.find(p=>p.id===pid); if(!s)return;
-            if(t===drawState.word && pid!==drawState.id) { broadcast({type:'DRAW_WIN', winner:s.name, word:drawState.word}); handleClientMsg({type:'DRAW_WIN', winner:s.name, word:drawState.word}); }
-            else { const d={type:'DRAW_CHAT', sender:s.name, text:t, win:false}; broadcast(d); drawChat(s.name, t, false); }
+            // ★ ひらがな・カタカナ等も含めて正解判定 (配列 accepts に含まれるか)
+            if(drawState.obj.a.includes(t.toLowerCase()) && pid!==drawState.id) { 
+                broadcast({type:'DRAW_WIN', winner:s.name, word:drawState.obj.w}); handleClientMsg({type:'DRAW_WIN', winner:s.name, word:drawState.obj.w}); 
+            } else { 
+                const d={type:'DRAW_CHAT', sender:s.name, text:t, win:false}; broadcast(d); drawChat(s.name, t, false); 
+            }
         }
-        function drawChat(s, t, w) { const box=document.getElementById('draw-chat-history'); box.innerHTML+=`<div class="${w?'text-green-400 font-bold':'text-white'}"><span class="text-[10px] text-gray-400">${s}:</span> ${t}</div>`; box.scrollTop=box.scrollHeight; }
+        function drawChat(s, t, w) { const box=document.getElementById('draw-chat-history'); box.innerHTML+=`<div class="${w?'text-emerald-400 font-bold':'text-white'}"><span class="text-[10px] text-gray-400">${s}:</span> ${t}</div>`; box.scrollTop=box.scrollHeight; }
 
     </script>
 </body>

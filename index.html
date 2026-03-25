@@ -2,122 +2,200 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>P2P Game Lounge</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>P2P Game Lounge - fully play-able</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
-        body { background-color: #0f172a; color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #0f172a; color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow-x: hidden; }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
         .hidden { display: none !important; }
         
         /* Toast Animations */
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         .toast-enter { animation: slideIn 0.3s ease-out forwards; }
+
+        /* Game Specific */
+        #game-answer-list::-webkit-scrollbar { width: 4px; }
+        #game-answer-list::-webkit-scrollbar-thumb { background: #6366f1; border-radius: 4px; }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
+<body class="min-h-screen p-4 md:p-10 flex flex-col items-center">
 
-    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
+    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 w-72 max-w-[calc(100vw-2rem)]"></div>
 
-    <div id="screen-setup" class="glass p-8 rounded-2xl shadow-2xl w-full max-w-md flex flex-col gap-6 text-center">
+    <div id="screen-setup" class="glass p-8 rounded-2xl shadow-2xl w-full max-w-lg flex flex-col gap-6 text-center mt-10 md:mt-20">
         <h1 class="text-3xl font-bold tracking-tight text-indigo-400">Game Lounge</h1>
         <div>
             <label class="block text-sm text-gray-400 mb-2 text-left">プレイヤー名</label>
-            <input type="text" id="player-name" class="w-full p-3 rounded-lg bg-slate-800 border border-slate-600 focus:outline-none focus:border-indigo-500 text-white" placeholder="名前を入力">
+            <input type="text" id="player-name" class="w-full p-4 rounded-xl bg-slate-800 border border-slate-600 focus:outline-none focus:border-indigo-500 text-white" placeholder="名前を入力">
         </div>
-        <div class="flex justify-between items-center mt-2">
-            <button onclick="attemptAdmin()" class="text-xs text-gray-500 hover:text-yellow-500 transition">管理者になる</button>
-            <span id="current-role-display" class="text-xs text-gray-400 flex items-center gap-1"></span>
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mt-2 text-left">
+            <span id="current-role-display" class="text-xs text-gray-400 flex items-center gap-1">未認証</span>
+            <button onclick="attemptAdmin()" class="text-xs text-indigo-400 hover:text-yellow-500 transition">管理者になる</button>
         </div>
-        <button onclick="goToConnectScreen()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 rounded-lg font-semibold transition shadow-lg mt-2">次へ</button>
+        <button onclick="goToConnectScreen()" class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 rounded-xl font-semibold transition shadow-lg mt-2 text-lg">次へ</button>
     </div>
 
-    <div id="screen-connect" class="glass p-8 rounded-2xl shadow-2xl w-full max-w-md flex flex-col gap-6 hidden">
-        <button onclick="goBack('screen-setup')" class="text-left text-sm text-gray-400 hover:text-white mb-2">← 戻る</button>
+    <div id="screen-connect" class="glass p-8 rounded-2xl shadow-2xl w-full max-w-lg flex flex-col gap-6 hidden mt-10 md:mt-20">
+        <button onclick="goBack('screen-setup')" class="text-left text-sm text-indigo-400 hover:text-white mb-2">← 戻る</button>
         <h2 class="text-2xl font-bold text-center">ルーム接続</h2>
         
         <div class="border-b border-slate-700 pb-6">
-            <button onclick="createRoom()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 rounded-lg font-semibold transition shadow-lg">PINを作成して部屋を作る (ホスト)</button>
-            <p id="capacity-info" class="text-xs text-center text-gray-400 mt-2"></p>
+            <button onclick="createRoom()" class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 rounded-xl font-semibold transition shadow-lg text-lg">PINを作成して部屋を作る (ホスト)</button>
+            <p id="capacity-info" class="text-xs text-center text-gray-400 mt-3"></p>
         </div>
 
         <div class="pt-2">
             <label class="block text-sm text-gray-400 mb-2">PINを入力して参加</label>
             <div class="flex gap-2">
-                <input type="text" id="join-pin" maxlength="5" class="w-full p-3 rounded-lg bg-slate-800 border border-slate-600 focus:outline-none focus:border-indigo-500 text-white text-center text-xl tracking-widest" placeholder="12345">
-                <button onclick="joinRoom()" class="px-6 bg-indigo-600 hover:bg-indigo-700 rounded-lg font-semibold transition">参加</button>
+                <input type="text" id="join-pin" maxlength="5" class="w-full p-4 rounded-xl bg-slate-800 border border-slate-600 focus:outline-none focus:border-indigo-500 text-white text-center text-2xl tracking-widest" placeholder="12345">
+                <button onclick="joinRoom()" class="px-6 bg-indigo-600 hover:bg-indigo-700 rounded-xl font-semibold transition text-lg">参加</button>
             </div>
         </div>
     </div>
 
-    <div id="screen-lobby" class="glass rounded-2xl shadow-2xl w-full max-w-5xl h-[80vh] hidden flex overflow-hidden">
+    <div id="screen-lobby" class="glass rounded-2xl shadow-2xl w-full max-w-7xl h-[calc(100vh-6rem)] md:h-[85vh] hidden flex flex-col md:flex-row overflow-hidden">
         
-        <div class="w-1/3 border-r border-slate-700 flex flex-col bg-slate-800/50">
-            <div class="p-4 border-b border-slate-700 bg-slate-800">
-                <h3 class="font-bold flex items-center justify-between">
-                    <span>プレイヤー (<span id="player-count">1</span>)</span>
-                    <span id="room-pin-display" class="bg-indigo-900 text-indigo-300 text-xs px-2 py-1 rounded">PIN: ----</span>
+        <div class="w-full md:w-80 border-b md:border-b-0 md:border-r border-slate-700 flex flex-col bg-slate-800/50 shrink-0 h-40 md:h-full">
+            <div class="p-4 border-b border-slate-700 bg-slate-800 flex items-center justify-between shrink-0">
+                <h3 class="font-bold flex items-center gap-2">
+                    <span>プレイヤー</span>
+                    <span id="player-count" class="bg-indigo-900 text-indigo-300 text-xs px-2 py-1 rounded-full">1</span>
                 </h3>
+                <span id="room-pin-display" class="bg-indigo-900 text-indigo-300 text-xs px-3 py-1.5 rounded-lg font-mono">PIN: ----</span>
             </div>
-            <div id="player-list" class="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
+            <div id="player-list" class="flex-1 overflow-y-auto p-3 flex md:flex-col gap-3">
                 </div>
         </div>
 
-        <div class="w-2/3 flex flex-col relative">
-            <div class="p-6 flex-1 overflow-y-auto">
-                <h2 class="text-3xl font-bold mb-6">ゲームを選択</h2>
-                <div class="grid grid-cols-2 gap-4">
-                    <button class="bg-slate-700 hover:bg-slate-600 p-6 rounded-xl flex flex-col items-center justify-center transition group border border-slate-600 hover:border-indigo-400">
-                        <span class="text-4xl mb-3 group-hover:scale-110 transition">🐺</span>
-                        <span class="font-bold">人狼ゲーム</span>
+        <div class="w-full md:w-auto md:flex-1 flex flex-col relative h-[calc(100%-10rem)] md:h-full">
+            <div class="p-6 md:p-10 flex-1 overflow-y-auto pb-24">
+                <h2 class="text-3xl font-bold mb-8 text-center md:text-left">ゲームを選択</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                    <button class="bg-slate-700 hover:bg-slate-600 p-8 rounded-2xl flex flex-col items-center justify-center transition group border border-slate-600 hover:border-indigo-400 shadow-md">
+                        <span class="text-5xl mb-4 group-hover:scale-110 transition">🐺</span>
+                        <span class="font-bold text-lg">人狼ゲーム</span>
                     </button>
-                    <button class="bg-slate-700 hover:bg-slate-600 p-6 rounded-xl flex flex-col items-center justify-center transition group border border-slate-600 hover:border-indigo-400">
-                        <span class="text-4xl mb-3 group-hover:scale-110 transition">🧩</span>
-                        <span class="font-bold">一致するまで終われまテン</span>
+                    <button onclick="startGameTen()" class="bg-slate-700 hover:bg-slate-600 p-8 rounded-2xl flex flex-col items-center justify-center transition group border border-slate-600 hover:border-emerald-400 shadow-md">
+                        <span class="text-5xl mb-4 group-hover:scale-110 transition">🧩</span>
+                        <span class="font-bold text-lg">一致するまで終われまテン</span>
                     </button>
-                    <button class="bg-slate-700 hover:bg-slate-600 p-6 rounded-xl flex flex-col items-center justify-center transition group border border-slate-600 hover:border-indigo-400">
-                        <span class="text-4xl mb-3 group-hover:scale-110 transition">🎨</span>
-                        <span class="font-bold">何を描いているでしょう</span>
+                    <button class="bg-slate-700 hover:bg-slate-600 p-8 rounded-2xl flex flex-col items-center justify-center transition group border border-slate-600 hover:border-indigo-400 shadow-md">
+                        <span class="text-5xl mb-4 group-hover:scale-110 transition">🎨</span>
+                        <span class="font-bold text-lg">何を描いているでしょう</span>
                     </button>
-                    <button class="bg-slate-700 hover:bg-slate-600 p-6 rounded-xl flex flex-col items-center justify-center transition group border border-slate-600 hover:border-indigo-400">
-                        <span class="text-4xl mb-3 group-hover:scale-110 transition">⚙️</span>
-                        <span class="font-bold">ゲーム詳細設定</span>
+                    <button id="open-settings-btn" onclick="openSettings()" class="hidden bg-slate-800 hover:bg-slate-700 p-8 rounded-2xl flex flex-col items-center justify-center transition group border border-slate-700 hover:border-yellow-500 shadow-md">
+                        <span class="text-5xl mb-4 group-hover:scale-110 transition">⚙️</span>
+                        <span class="font-bold text-lg text-yellow-500">ゲーム詳細設定</span>
                     </button>
                 </div>
             </div>
-            <div id="connection-status" class="p-2 bg-slate-900 text-center text-xs text-gray-400 absolute bottom-0 w-full">
+            <div id="connection-status" class="p-2.5 bg-slate-900 text-center text-xs text-gray-400 absolute bottom-0 w-full border-t border-slate-700 z-10">
                 接続待機中...
             </div>
         </div>
     </div>
 
+    <div id="screen-game-ten" class="glass rounded-2xl shadow-2xl w-full max-w-5xl h-[calc(100vh-6rem)] md:h-[85vh] hidden flex flex-col overflow-hidden">
+        <div class="p-6 border-b border-slate-700 flex items-center justify-between">
+            <h2 class="text-2xl font-bold text-emerald-400">🧩 一致するまで終われまテン</h2>
+            <div id="game-ten-status" class="text-sm px-3 py-1 bg-slate-800 rounded-full">お題発表中...</div>
+        </div>
+        
+        <div class="flex-1 p-6 md:p-10 flex flex-col items-center justify-center text-center gap-6">
+            <div id="game-ten-topic-view" class="w-full max-w-2xl flex flex-col gap-8">
+                <p class="text-sm text-gray-400">お題</p>
+                <h3 id="game-ten-topic" class="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white px-4">日本の都道府県といえば？</h3>
+                
+                <div id="game-ten-input-area" class="w-full">
+                    <label class="block text-sm text-gray-400 mb-2">あなたの回答</label>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <input type="text" id="game-ten-answer-input" class="w-full p-4 rounded-xl bg-slate-800 border border-slate-600 focus:outline-none focus:border-emerald-500 text-white text-center text-lg" placeholder="回答を入力">
+                        <button onclick="submitAnswerTen()" class="sm:px-8 py-4 bg-emerald-600 hover:bg-emerald-700 rounded-xl font-semibold transition text-lg shrink-0">回答する</button>
+                    </div>
+                </div>
+
+                <div id="game-ten-waiting-area" class="hidden text-xl text-gray-400">他のプレイヤーの回答を待っています...</div>
+            </div>
+
+            <div id="game-ten-results-view" class="w-full max-w-3xl flex flex-col gap-6 hidden">
+                <h3 id="game-ten-result-title" class="text-4xl font-bold">全員一致！🎉</h3>
+                
+                <div id="game-answer-list" class="w-full bg-slate-800 p-5 rounded-xl border border-slate-700 max-h-60 overflow-y-auto flex flex-col gap-3 text-left">
+                    </div>
+
+                <div class="flex gap-3 justify-center mt-4">
+                    <button id="host-next-btn" onclick="startGameTen()" class="hidden px-8 py-3 bg-emerald-600 hover:bg-emerald-700 rounded-lg font-semibold transition">次の問題を出す (ホスト)</button>
+                    <button id="host-end-btn" onclick="backToLobby()" class="hidden px-8 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-semibold transition">ロビーに戻る (ホスト)</button>
+                    <div id="client-wait-next" class="hidden text-gray-400">ホストが次の問題を出すのを待っています...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <template id="icon-admin">
-        <svg class="w-4 h-4 text-yellow-500 inline ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+        <svg class="w-4.5 h-4.5 text-yellow-500 inline ml-1.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
     </template>
     <template id="icon-verified">
-        <svg class="w-4 h-4 text-blue-400 inline ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+        <svg class="w-4.5 h-4.5 text-blue-400 inline ml-1.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
     </template>
+
+    <dialog id="settings-modal" class="p-0 rounded-2xl glass shadow-2xl w-full max-w-lg border-none">
+        <div class="p-8 flex flex-col gap-6">
+            <div class="flex items-center justify-between">
+                <h3 class="text-xl font-bold text-yellow-500">ゲーム詳細設定</h3>
+                <button onclick="closeSettings()" class="text-gray-400 hover:text-white">✕</button>
+            </div>
+            
+            <div class="space-y-4">
+                <h4 class="font-semibold text-emerald-400">一致するまで終われまテン</h4>
+                <div>
+                    <label class="block text-sm text-gray-400 mb-1.5">回答制限時間 (秒)</label>
+                    <input type="number" id="setting-ten-time" min="0" step="5" class="w-full p-3 rounded-lg bg-slate-800 border border-slate-600 text-white" placeholder="0 = 無制限">
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-400 mb-1.5">お題リストをカスタマイズ (カンマ区切り)</label>
+                    <textarea id="setting-ten-topics" rows="3" class="w-full p-3 rounded-lg bg-slate-800 border border-slate-600 text-white" placeholder="お題1,お題2,お題3"></textarea>
+                </div>
+            </div>
+
+            <button onclick="saveSettings()" class="w-full py-3 bg-yellow-600 hover:bg-yellow-700 rounded-lg font-semibold transition mt-2">設定を同期</button>
+        </div>
+    </dialog>
 
     <script>
         // --- State & Storage ---
         const APP_PREFIX = 'game-lounge-v1-';
-        let localData = JSON.parse(localStorage.getItem('loungeData')) || { name: '', role: 'unverified' };
+        const LOUNGE_DATA_KEY = 'loungeData';
+        let localData = JSON.parse(localStorage.getItem(LOUNGE_DATA_KEY)) || { name: '', role: 'unverified' };
+        
         let myPeer = null;
         let connections = []; // Host holds connections to clients
         let hostConnection = null; // Client holds connection to Host
         let isHost = false;
-        
         let players = []; // Array of { id, name, role }
+
+        // --- Game Ten State ---
+        let gameTenStatus = { phase: 'topic', topic: '', playerAnswers: {} }; // playerAnswers: { playerId: answer }
+        let tenDefaultTopics = ["日本の都道府県といえば？", "一番有名なアニメの主人公といえば？", "一番おいしい寿司のネタといえば？", "一番有名な日本の歴史人物といえば？", "一番有名な海外の観光地といえば？"];
+        let loungeSettings = { ten: { time: 0, topics: tenDefaultTopics } };
 
         // --- Initialization ---
         document.getElementById('player-name').value = localData.name;
         updateRoleDisplay();
 
-        function saveLocalData() {
-            localData.name = document.getElementById('player-name').value || 'ゲスト';
-            localStorage.setItem('loungeData', JSON.stringify(localData));
+        function saveLocalData(nameChangeOnly = false) {
+            const nameInput = document.getElementById('player-name').value.trim() || 'ゲスト';
+            localData.name = nameInput;
+            localStorage.setItem(LOUNGE_DATA_KEY, JSON.stringify(localData));
             updateRoleDisplay();
+            
+            if (isHost && !nameChangeOnly) {
+                players[0].role = localData.role; // 自分(ホスト)の役職を更新
+                broadcast({ type: 'SYNC_PLAYERS', players });
+                renderPlayerList();
+            }
         }
 
         function updateRoleDisplay() {
@@ -137,7 +215,7 @@
         }
         function goToConnectScreen() {
             if(!document.getElementById('player-name').value.trim()) return showToast("名前を入力してください", "error");
-            saveLocalData();
+            saveLocalData(true);
             showScreen('screen-connect');
         }
         function goBack(id) { showScreen(id); }
@@ -166,12 +244,30 @@
             }
         }
 
+        // --- Settings Modal ---
+        function openSettings() {
+            if(!isHost || localData.role !== 'admin') return;
+            document.getElementById('setting-ten-time').value = loungeSettings.ten.time;
+            document.getElementById('setting-ten-topics').value = loungeSettings.ten.topics.join(',');
+            document.getElementById('settings-modal').showModal();
+        }
+        function closeSettings() { document.getElementById('settings-modal').close(); }
+        function saveSettings() {
+            const time = parseInt(document.getElementById('setting-ten-time').value) || 0;
+            const topicsText = document.getElementById('setting-ten-topics').value.trim();
+            const topics = topicsText ? topicsText.split(',').map(s => s.trim()) : tenDefaultTopics;
+            loungeSettings = { ten: { time, topics } };
+            broadcast({ type: 'SYNC_SETTINGS', settings: loungeSettings });
+            showToast("設定を同期しました", "success");
+            closeSettings();
+        }
+
         // --- UI Updates ---
         function showToast(msg, type="info") {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             const colors = type === "error" ? "bg-red-500" : (type === "success" ? "bg-emerald-500" : "bg-slate-700");
-            toast.className = `toast-enter text-white px-4 py-3 rounded shadow-lg text-sm flex items-center gap-2 ${colors}`;
+            toast.className = `toast-enter text-white px-5 py-3.5 rounded-xl shadow-lg text-sm flex items-center gap-2 border border-slate-600/50 ${colors}`;
             toast.innerHTML = `<span>${msg}</span>`;
             container.appendChild(toast);
             setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 4000);
@@ -184,19 +280,20 @@
 
             players.forEach(p => {
                 const isMe = p.id === (myPeer ? myPeer.id : null);
+                const isPCHost = players[0].id === p.id;
                 const badge = p.role === 'admin' ? document.getElementById('icon-admin').innerHTML 
                             : (p.role === 'verified' ? document.getElementById('icon-verified').innerHTML : '');
                 
                 let verifyBtn = '';
-                if (isHost && localData.role === 'admin' && p.role === 'unverified') {
-                    verifyBtn = `<button onclick="verifyPlayer('${p.id}')" class="ml-auto text-xs bg-slate-700 hover:bg-blue-600 px-2 py-1 rounded transition">認証する</button>`;
+                if (isHost && localData.role === 'admin' && p.role === 'unverified' && !isMe) {
+                    verifyBtn = `<button onclick="verifyPlayer('${p.id}')" class="ml-auto text-xs bg-slate-700 hover:bg-emerald-600 px-2.5 py-1 rounded-md transition">認証</button>`;
                 }
 
                 list.innerHTML += `
-                    <div class="flex items-center gap-3 bg-slate-900/50 p-3 rounded-lg border border-slate-700">
-                        <div class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center font-bold">${p.name.charAt(0)}</div>
+                    <div class="flex items-center gap-3 bg-slate-900/50 p-3 rounded-xl border border-slate-700 shrink-0 md:shrink">
+                        <div class="w-9 h-9 rounded-full bg-indigo-500 flex items-center justify-center font-bold text-lg text-slate-900">${p.name.charAt(0).toUpperCase()}</div>
                         <div class="flex-1 flex items-center">
-                            <span class="font-medium">${p.name} ${isMe ? '<span class="text-xs text-gray-500">(あなた)</span>' : ''}</span>
+                            <span class="font-medium text-white">${p.name} ${isMe ? '<span class="text-xs text-gray-500 ml-1">(あなた)</span>' : ''}</span>
                             ${badge}
                             ${verifyBtn}
                         </div>
@@ -205,15 +302,28 @@
             });
         }
 
-        function updateStatus(msg) {
-            document.getElementById('connection-status').innerText = msg;
+        function updateStatus(msg) { document.getElementById('connection-status').innerText = msg; }
+
+        // --- P2P Message Handling (Both) ---
+        function onData(data, fromConn = null) {
+            switch(data.type) {
+                case 'SYNC_PLAYERS': players = data.players; renderPlayerList(); break;
+                case 'SYNC_SETTINGS': loungeSettings = data.settings; showToast("ゲーム設定が更新されました"); break;
+                case 'ERROR': showToast(data.msg, "error"); goBack('screen-connect'); break;
+                case 'YOU_ARE_VERIFIED': if (data.targetId === myPeer.id) { localData.role = 'verified'; saveLocalData(false); showToast("管理者によって認証されました！🎉", "success"); } break;
+                
+                // Game Ten: Shared
+                case 'GAME_TEN_START': onGameTenStart(data); break;
+                case 'GAME_TEN_SUBMIT_ANSWER': if(isHost) onHostReceiveAnswer(fromConn.peer, data.answer); break;
+                case 'GAME_TEN_RESULTS': onGameTenResults(data); break;
+                case 'GAME_TEN_END': backToLobby(); break;
+            }
         }
 
         // --- P2P Logic (Host) ---
         function createRoom() {
             const pin = Math.floor(10000 + Math.random() * 90000).toString();
             const peerId = APP_PREFIX + pin;
-            
             updateStatus("ルーム作成中...");
             myPeer = new Peer(peerId);
 
@@ -224,34 +334,28 @@
                 renderPlayerList();
                 showScreen('screen-lobby');
                 updateStatus("ホストとして待機中 (PIN: " + pin + ")");
+                if(localData.role === 'admin') document.getElementById('open-settings-btn').classList.remove('hidden');
             });
 
             myPeer.on('connection', (conn) => {
                 // Check Capacity
                 const max = localData.role === 'admin' ? Infinity : (localData.role === 'verified' ? 10 : 5);
-                if (players.length >= max) {
-                    conn.on('open', () => { conn.send({ type: 'ERROR', msg: 'ルームが満員です' }); setTimeout(() => conn.close(), 500); });
-                    return;
-                }
+                if (players.length >= max) { conn.on('open', () => { conn.send({ type: 'ERROR', msg: 'ルームが満員です' }); setTimeout(() => conn.close(), 500); }); return; }
 
-                conn.on('data', (data) => {
-                    if (data.type === 'JOIN') {
-                        players.push({ id: conn.peer, name: data.name, role: data.role });
-                        connections.push(conn);
-                        broadcast({ type: 'SYNC_PLAYERS', players });
-                        renderPlayerList();
-                        showToast(`${data.name} が参加しました`, "success");
-                    }
-                });
+                conn.on('data', (data) => onData(data, conn));
 
                 conn.on('close', () => {
                     const disconnectedPlayer = players.find(p => p.id === conn.peer);
                     if (disconnectedPlayer) {
                         players = players.filter(p => p.id !== conn.peer);
                         connections = connections.filter(c => c.peer !== conn.peer);
+                        
+                        // Game Handling: if playing Ten
+                        if(gameTenStatus.phase === 'results') { /* do nothing, already done */ }
+                        else if (gameTenStatus.phase === 'topic') { delete gameTenStatus.playerAnswers[conn.peer]; checkAllTenAnswers(); }
+
                         broadcast({ type: 'SYNC_PLAYERS', players });
                         renderPlayerList();
-                        // 【要件クリア】接続が切れたプレイヤーは即通知、ゲームに影響しない
                         showToast(`${disconnectedPlayer.name} が切断されました`, "error");
                     }
                 });
@@ -260,56 +364,132 @@
             myPeer.on('error', (err) => { showToast("エラーが発生しました: " + err.type, "error"); });
         }
 
-        function broadcast(data) {
-            connections.forEach(conn => {
-                if (conn.open) conn.send(data);
-            });
-        }
+        function broadcast(data) { connections.forEach(conn => { if (conn.open) conn.send(data); }); }
 
         // --- P2P Logic (Client) ---
         function joinRoom() {
             const pin = document.getElementById('join-pin').value;
             if (pin.length !== 5) return showToast("5桁のPINを入力してください", "error");
-
             updateStatus("接続中...");
             myPeer = new Peer();
 
             myPeer.on('open', (id) => {
                 hostConnection = myPeer.connect(APP_PREFIX + pin);
-                
                 hostConnection.on('open', () => {
                     hostConnection.send({ type: 'JOIN', name: localData.name, role: localData.role });
                     document.getElementById('room-pin-display').innerText = `PIN: ${pin}`;
                     showScreen('screen-lobby');
                     updateStatus("ルームに接続しました");
                 });
-
-                hostConnection.on('data', (data) => {
-                    if (data.type === 'SYNC_PLAYERS') {
-                        players = data.players;
-                        renderPlayerList();
-                    } else if (data.type === 'ERROR') {
-                        showToast(data.msg, "error");
-                        goBack('screen-connect');
-                    } else if (data.type === 'YOU_ARE_VERIFIED') {
-                        if (data.targetId === myPeer.id) {
-                            localData.role = 'verified';
-                            saveLocalData();
-                            showToast("管理者によって認証されました！", "success");
-                        }
-                    }
-                });
-
-                hostConnection.on('close', () => {
-                    showToast("ホストとの接続が切れました", "error");
-                    goBack('screen-connect');
-                });
+                hostConnection.on('data', (data) => onData(data));
+                hostConnection.on('close', () => { showToast("ホストとの接続が切れました", "error"); backToLobby(); goBack('screen-connect'); });
             });
 
             myPeer.on('error', (err) => {
                 if (err.type === 'peer-unavailable') showToast("指定されたPINのルームが見つかりません", "error");
                 else showToast("接続エラー: " + err.type, "error");
             });
+        }
+
+        function backToLobby() {
+            if(isHost) broadcast({type: 'GAME_TEN_END'});
+            showScreen('screen-lobby');
+        }
+
+        // =========================================================
+        // === Game Logic: 一致するまで終われまテン ========================
+        // =========================================================
+        
+        // --- Game Ten: Host Logic ---
+        function startGameTen() {
+            if(!isHost || players.length < 2) return showToast("2人以上のプレイヤーが必要です", "error");
+            
+            // Choose topic
+            const topics = loungeSettings.ten.topics;
+            gameTenStatus.topic = topics[Math.floor(Math.random() * topics.length)];
+            gameTenStatus.phase = 'topic';
+            gameTenStatus.playerAnswers = {}; // reset answers
+            
+            broadcast({ type: 'GAME_TEN_START', topic: gameTenStatus.topic });
+            onGameTenStart(gameTenStatus); // Host joins too
+        }
+
+        function onHostReceiveAnswer(playerId, answer) {
+            gameTenStatus.playerAnswers[playerId] = answer;
+            checkAllTenAnswers();
+        }
+
+        function checkAllTenAnswers() {
+            // Check if all current players have answered
+            const unansweredPlayers = players.filter(p => !gameTenStatus.playerAnswers[p.id]);
+            if(unansweredPlayers.length === 0) {
+                // All answered
+                gameTenStatus.phase = 'results';
+                const allAnswers = players.map(p => ({ playerId: p.id, playerName: p.name, answer: gameTenStatus.playerAnswers[p.id] || '(未回答)' }));
+                const firstAnswer = allAnswers[0].answer;
+                const match = allAnswers.every(a => a.answer.trim().toLowerCase() === firstAnswer.trim().toLowerCase());
+                
+                broadcast({ type: 'GAME_TEN_RESULTS', match: match, allAnswers: allAnswers });
+                onGameTenResults({ match: match, allAnswers: allAnswers });
+            }
+        }
+
+        // --- Game Ten: Common / Client Logic ---
+        function onGameTenStart(data) {
+            document.getElementById('game-ten-topic').innerText = data.topic;
+            document.getElementById('game-ten-status').innerText = "お題発表中...";
+            document.getElementById('game-ten-input-area').classList.remove('hidden');
+            document.getElementById('game-ten-waiting-area').classList.add('hidden');
+            document.getElementById('game-ten-results-view').classList.add('hidden');
+            document.getElementById('game-ten-topic-view').classList.remove('hidden');
+            document.getElementById('game-ten-answer-input').value = '';
+            showScreen('screen-game-ten');
+        }
+
+        function submitAnswerTen() {
+            const answer = document.getElementById('game-ten-answer-input').value.trim();
+            if(!answer) return showToast("回答を入力してください", "error");
+            
+            document.getElementById('game-ten-input-area').classList.add('hidden');
+            document.getElementById('game-ten-waiting-area').classList.remove('hidden');
+            
+            if(isHost) { gameTenStatus.playerAnswers[myPeer.id] = answer; checkAllTenAnswers(); }
+            else { hostConnection.send({ type: 'GAME_TEN_SUBMIT_ANSWER', answer: answer }); }
+        }
+
+        function onGameTenResults(data) {
+            document.getElementById('game-ten-topic-view').classList.add('hidden');
+            document.getElementById('game-ten-results-view').classList.remove('hidden');
+            document.getElementById('game-ten-status').innerText = "結果発表！";
+            
+            const title = document.getElementById('game-ten-result-title');
+            if(data.match) { title.innerText = "全員一致！🎉"; title.className = "text-4xl md:text-5xl font-extrabold text-emerald-400"; }
+            else { title.innerText = "不一致...😢"; title.className = "text-4xl md:text-5xl font-extrabold text-red-500"; }
+            
+            // List Answers
+            const list = document.getElementById('game-answer-list');
+            list.innerHTML = '';
+            data.allAnswers.forEach(a => {
+                const color = a.answer.trim().toLowerCase() === data.allAnswers[0].answer.trim().toLowerCase() ? 'text-emerald-300' : 'text-slate-300';
+                list.innerHTML += `
+                    <div class="bg-slate-900/50 p-3 rounded-lg flex gap-3 text-sm border border-slate-700">
+                        <span class="font-bold text-white shrink-0">${a.playerName}:</span>
+                        <span class="${color} font-mono flex-1 text-right text-base">${a.answer}</span>
+                    </div>
+                `;
+            });
+            
+            // Host Controls
+            if(isHost) {
+                document.getElementById('host-next-btn').classList.remove('hidden');
+                document.getElementById('host-end-btn').classList.remove('hidden');
+                document.getElementById('client-wait-next').classList.add('hidden');
+                document.getElementById('host-next-btn').innerText = data.match ? "次の問題を出す (ホスト)" : "もう一度挑戦する (ホスト)";
+            } else {
+                document.getElementById('client-wait-next').classList.remove('hidden');
+                document.getElementById('host-next-btn').classList.add('hidden');
+                document.getElementById('host-end-btn').classList.add('hidden');
+            }
         }
     </script>
 </body>

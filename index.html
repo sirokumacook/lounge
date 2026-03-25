@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>P2P Game Lounge - Fixed</title>
+    <title>P2P Game Lounge - Ultimate</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
@@ -18,12 +18,16 @@
         .bomb-active { animation: vibrate 0.1s linear infinite; }
     </style>
 </head>
-<body class="min-h-screen p-2 md:p-6 flex flex-col items-center">
+<body class="min-h-screen p-2 md:p-6 flex flex-col items-center relative">
 
-    <div id="toast-container" class="fixed top-4 right-4 z-[60] flex flex-col gap-2 w-72 pointer-events-none"></div>
+    <div id="toast-container" class="fixed top-4 right-4 z-[70] flex flex-col gap-2 w-72 pointer-events-none"></div>
 
-    <div id="global-header" class="fixed top-4 right-4 z-50 hidden">
+    <div id="global-header" class="fixed top-4 right-4 z-[60] hidden">
         <button onclick="openProfileSettings()" class="bg-slate-800 p-3 rounded-full shadow-lg border border-slate-600 transition hover:rotate-90">⚙️</button>
+    </div>
+
+    <div id="force-end-header" class="fixed top-4 left-4 z-[60] hidden host-only">
+        <button onclick="forceEndGame()" class="bg-red-700 hover:bg-red-600 px-4 py-2 rounded-lg shadow-lg border border-red-500 font-bold text-sm shadow-[0_0_10px_rgba(220,38,38,0.5)]">🛑 ゲーム強制終了</button>
     </div>
 
     <dialog id="modal-profile" class="p-0 rounded-2xl glass shadow-2xl w-full max-w-sm border-none backdrop:bg-black/50">
@@ -38,6 +42,24 @@
             </div>
             <button onclick="saveProfileSettings()" class="w-full py-3 bg-indigo-600 rounded-xl font-bold">保存</button>
             <button onclick="attemptAdmin()" class="w-full py-2 bg-slate-800 text-yellow-500 rounded-xl text-sm border border-slate-700">🔑 管理者になる</button>
+        </div>
+    </dialog>
+
+    <dialog id="modal-game-settings" class="p-0 rounded-2xl glass shadow-2xl w-full max-w-md border-none backdrop:bg-black/50">
+        <div class="p-6 flex flex-col gap-4 text-white">
+            <div class="flex items-center justify-between border-b border-slate-600 pb-2">
+                <h3 class="text-xl font-bold text-yellow-400">📝 お題・ゲーム設定</h3>
+                <button onclick="document.getElementById('modal-game-settings').close()" class="text-gray-400 text-xl">✕</button>
+            </div>
+            <div>
+                <label class="block text-sm text-emerald-400 font-bold mb-1">一致するまで終われまテン (カンマ区切り)</label>
+                <textarea id="set-topics-ten" rows="3" class="w-full p-2 rounded-lg bg-slate-900 border border-slate-600 text-sm"></textarea>
+            </div>
+            <div>
+                <label class="block text-sm text-blue-400 font-bold mb-1">何を描いているでしょう (カンマ区切り)</label>
+                <textarea id="set-topics-draw" rows="3" class="w-full p-2 rounded-lg bg-slate-900 border border-slate-600 text-sm"></textarea>
+            </div>
+            <button onclick="saveGameSettings()" class="w-full py-3 bg-yellow-600 hover:bg-yellow-500 rounded-xl font-bold mt-2 text-slate-900">設定を保存</button>
         </div>
     </dialog>
 
@@ -77,9 +99,12 @@
 
         <div class="w-full md:flex-1 flex flex-col relative h-2/3 md:h-full bg-slate-900/20">
             <div class="p-6 flex-1 overflow-y-auto">
-                <h2 class="text-xl font-bold mb-4">🎮 ゲームを選択 <span class="text-xs text-gray-400">(ホストのみ)</span></h2>
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold">🎮 ゲームを選択 <span class="text-xs text-gray-400">(ホストのみ)</span></h2>
+                    <button onclick="openGameSettings()" class="host-only hidden text-sm bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-yellow-500/50 text-yellow-400 font-bold">📝 お題設定</button>
+                </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <button onclick="hostStartGame('ten')" class="bg-slate-800 hover:bg-slate-700 p-4 rounded-xl flex flex-col items-center transition border border-slate-600">
+                    <button onclick="preStartGame('ten')" class="bg-slate-800 hover:bg-slate-700 p-4 rounded-xl flex flex-col items-center transition border border-slate-600">
                         <span class="text-4xl mb-2">🧩</span><span class="font-bold">一致するまで終われまテン</span>
                     </button>
                     <button onclick="openWWSettings('onenight')" class="bg-slate-800 hover:bg-slate-700 p-4 rounded-xl flex flex-col items-center transition border border-slate-600 hover:border-red-400">
@@ -88,7 +113,7 @@
                     <button onclick="openWWSettings('standard')" class="bg-slate-800 hover:bg-slate-700 p-4 rounded-xl flex flex-col items-center transition border border-slate-600 hover:border-red-600">
                         <span class="text-4xl mb-2">🌕</span><span class="font-bold">人狼ゲーム</span>
                     </button>
-                    <button onclick="hostStartGame('drawing')" class="bg-slate-800 hover:bg-slate-700 p-4 rounded-xl flex flex-col items-center transition border border-slate-600 hover:border-blue-400">
+                    <button onclick="preStartGame('drawing')" class="bg-slate-800 hover:bg-slate-700 p-4 rounded-xl flex flex-col items-center transition border border-slate-600 hover:border-blue-400">
                         <span class="text-4xl mb-2">🎨</span><span class="font-bold">何を描いているでしょう</span>
                     </button>
                     <button onclick="hostStartGame('bomb')" class="bg-slate-800 hover:bg-slate-700 p-4 rounded-xl flex flex-col items-center transition border border-slate-600 hover:border-orange-400">
@@ -124,9 +149,10 @@
                 </div>
                 <button onclick="submitTenAns()" id="btn-ten-submit" class="w-full py-4 bg-emerald-600 rounded-xl font-bold text-lg mt-2">提出</button>
                 
-                <div class="mt-4 p-3 bg-slate-800 rounded-xl border border-slate-700">
+                <div class="mt-4 p-4 bg-slate-800 rounded-xl border border-slate-700">
                     <p class="text-sm font-bold text-emerald-400 mb-2">提出状況</p>
-                    <div id="ten-submit-status" class="grid grid-cols-2 gap-2 text-sm text-left"></div>
+                    <div class="text-3xl font-bold mb-2"><span id="ten-submit-count" class="text-white">0</span> <span class="text-gray-500 text-xl">/ <span id="ten-submit-total">0</span></span></div>
+                    <button onclick="forceTenDeadline()" id="btn-ten-force" class="hidden host-only w-full py-2 bg-red-900/80 hover:bg-red-700 text-red-200 rounded-lg text-sm font-bold transition border border-red-700">強制締め切り (時間切れにする)</button>
                 </div>
             </div>
             
@@ -150,13 +176,13 @@
     <dialog id="modal-ww-settings" class="p-0 rounded-2xl glass shadow-2xl w-full max-w-sm border-none backdrop:bg-black/50">
         <div class="p-6 flex flex-col gap-4 text-white">
             <h3 id="ww-setup-title" class="text-xl font-bold border-b border-slate-600 pb-2">人狼設定</h3>
-            <div class="grid grid-cols-2 gap-2 text-sm">
-                <div>🐺 人狼</div><input type="number" id="ww-set-wolf" value="1" min="1" class="w-16 bg-slate-800 text-center rounded border border-slate-600">
-                <div>🔮 占い師</div><input type="number" id="ww-set-seer" value="1" min="0" class="w-16 bg-slate-800 text-center rounded border border-slate-600">
-                <div class="ww-standard-only">🛡️ 騎士</div><input type="number" id="ww-set-knight" value="0" min="0" class="ww-standard-only w-16 bg-slate-800 text-center rounded border border-slate-600">
-                <div class="ww-standard-only">🃏 狂人</div><input type="number" id="ww-set-madman" value="0" min="0" class="ww-standard-only w-16 bg-slate-800 text-center rounded border border-slate-600">
+            <div class="grid grid-cols-2 gap-2 text-sm items-center">
+                <div>🐺 人狼</div><input type="number" id="ww-set-wolf" value="1" min="1" class="w-16 bg-slate-800 text-center rounded border border-slate-600 p-1">
+                <div>🔮 占い師</div><input type="number" id="ww-set-seer" value="1" min="0" class="w-16 bg-slate-800 text-center rounded border border-slate-600 p-1">
+                <div class="ww-standard-only">🛡️ 騎士</div><input type="number" id="ww-set-knight" value="0" min="0" class="ww-standard-only w-16 bg-slate-800 text-center rounded border border-slate-600 p-1">
+                <div class="ww-standard-only">🃏 狂人</div><input type="number" id="ww-set-madman" value="0" min="0" class="ww-standard-only w-16 bg-slate-800 text-center rounded border border-slate-600 p-1">
                 <div class="col-span-2 border-t border-slate-700 mt-2 pt-2"></div>
-                <div>⏱️ 議論時間(秒)</div><input type="number" id="ww-set-time" value="60" min="10" step="10" class="w-16 bg-slate-800 text-center rounded border border-slate-600">
+                <div>⏱️ 議論時間(秒)</div><input type="number" id="ww-set-time" value="60" min="10" step="10" class="w-16 bg-slate-800 text-center rounded border border-slate-600 p-1">
             </div>
             <button onclick="startWerewolf()" class="w-full py-3 bg-red-600 rounded-xl font-bold mt-2">ゲーム開始</button>
             <button onclick="document.getElementById('modal-ww-settings').close()" class="w-full py-2 bg-slate-700 rounded-xl text-sm">キャンセル</button>
@@ -256,8 +282,15 @@
 
     <script>
         // --- 共通システム ---
-        const APP_PREFIX = 'gamelounge-v4-';
-        let localData = JSON.parse(localStorage.getItem('lgData4')) || { name: '', role: 'unverified' };
+        const APP_PREFIX = 'gamelounge-v5-';
+        let localData = JSON.parse(localStorage.getItem('lgData5')) || { name: '', role: 'unverified' };
+        
+        // ★ お題設定保存領域
+        let gameSettings = JSON.parse(localStorage.getItem('lgGameSet')) || {
+            tenTopics: "ドラえもん,アンパンマン,富士山,りんご,日本の都道府県",
+            drawTopics: "りんご,猫,車,メガネ,時計,自転車,飛行機"
+        };
+
         let myPeer = null, connections = [], hostConnection = null, isHost = false, players = [], currentGame = null;
 
         window.onload = () => { if(localData.name){ showScreen('screen-connect'); } else showScreen('screen-setup'); };
@@ -273,37 +306,27 @@
             document.querySelectorAll('body > div[id^="screen-"]').forEach(e => e.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
             
-            // ★ 設定ボタンはホーム(setup/connect)のみ表示
-            if(id === 'screen-setup' || id === 'screen-connect') {
-                document.getElementById('global-header').classList.remove('hidden');
-            } else {
-                document.getElementById('global-header').classList.add('hidden');
-            }
+            // ホームのみProfileボタン表示
+            if(id === 'screen-setup' || id === 'screen-connect') document.getElementById('global-header').classList.remove('hidden');
+            else document.getElementById('global-header').classList.add('hidden');
+            
+            // ゲーム中のみ強制終了ボタン表示
+            if(id.startsWith('screen-game-')) document.getElementById('force-end-header').classList.remove('hidden');
+            else document.getElementById('force-end-header').classList.add('hidden');
+            
             updateHostUI();
         }
         function updateHostUI() { document.querySelectorAll('.host-only').forEach(e => isHost ? e.classList.remove('hidden') : e.classList.add('hidden')); }
 
-        // --- プロフィール ---
-        function finishSetup() {
-            const n = document.getElementById('setup-player-name').value.trim(); if(!n) return showToast("名前を入力してください","error");
-            localData.name = n; localStorage.setItem('lgData4', JSON.stringify(localData)); showScreen('screen-connect');
-        }
-        function openProfileSettings() {
-            document.getElementById('setting-player-name').value = localData.name;
-            const r = document.getElementById('setting-role-display');
-            if(localData.role==='admin') r.innerHTML = `<span class="text-yellow-500">管理者</span> ${document.getElementById('icon-admin').innerHTML}`;
-            else if(localData.role==='verified') r.innerHTML = `<span class="text-blue-400">認証済</span> ${document.getElementById('icon-verified').innerHTML}`;
-            else r.innerHTML = `<span class="text-gray-400">未認証</span>`;
-            document.getElementById('modal-profile').showModal();
-        }
+        // --- プロフィール・設定 ---
+        function finishSetup() { const n = document.getElementById('setup-player-name').value.trim(); if(!n) return showToast("名前を入力してください","error"); localData.name = n; localStorage.setItem('lgData5', JSON.stringify(localData)); showScreen('screen-connect'); }
+        function openProfileSettings() { document.getElementById('setting-player-name').value = localData.name; const r = document.getElementById('setting-role-display'); if(localData.role==='admin') r.innerHTML = `<span class="text-yellow-500">管理者</span> ${document.getElementById('icon-admin').innerHTML}`; else if(localData.role==='verified') r.innerHTML = `<span class="text-blue-400">認証済</span> ${document.getElementById('icon-verified').innerHTML}`; else r.innerHTML = `<span class="text-gray-400">未認証</span>`; document.getElementById('modal-profile').showModal(); }
         function closeProfileSettings() { document.getElementById('modal-profile').close(); }
-        function saveProfileSettings() {
-            localData.name = document.getElementById('setting-player-name').value.trim() || 'ゲスト';
-            localStorage.setItem('lgData4', JSON.stringify(localData)); closeProfileSettings();
-            if(isHost) { players.find(p=>p.id===myPeer.id).name = localData.name; broadcast({type:'SYNC_PLAYERS',players}); renderPlayerList(); }
-            else if(hostConnection) hostConnection.send({type:'UPDATE_INFO', name:localData.name});
-        }
-        function attemptAdmin() { if(prompt("パスワード:")==="9999999999") { localData.role="admin"; localStorage.setItem('lgData4',JSON.stringify(localData)); showToast("管理者になりました","success"); closeProfileSettings(); openProfileSettings(); } }
+        function saveProfileSettings() { localData.name = document.getElementById('setting-player-name').value.trim() || 'ゲスト'; localStorage.setItem('lgData5', JSON.stringify(localData)); closeProfileSettings(); if(isHost) { players.find(p=>p.id===myPeer.id).name = localData.name; broadcast({type:'SYNC_PLAYERS',players}); renderPlayerList(); } else if(hostConnection) hostConnection.send({type:'UPDATE_INFO', name:localData.name}); }
+        function attemptAdmin() { if(prompt("パスワード:")==="9999999999") { localData.role="admin"; localStorage.setItem('lgData5',JSON.stringify(localData)); showToast("管理者になりました","success"); closeProfileSettings(); openProfileSettings(); } }
+
+        function openGameSettings() { document.getElementById('set-topics-ten').value = gameSettings.tenTopics; document.getElementById('set-topics-draw').value = gameSettings.drawTopics; document.getElementById('modal-game-settings').showModal(); }
+        function saveGameSettings() { gameSettings.tenTopics = document.getElementById('set-topics-ten').value.trim(); gameSettings.drawTopics = document.getElementById('set-topics-draw').value.trim(); localStorage.setItem('lgGameSet', JSON.stringify(gameSettings)); document.getElementById('modal-game-settings').close(); showToast("ゲーム設定を保存しました", "success"); }
 
         // --- P2P接続 ---
         function setOverlay(show, text="...") { document.getElementById('connecting-overlay').classList.toggle('hidden',!show); document.getElementById('connecting-text').innerText=text; }
@@ -311,14 +334,8 @@
         function disconnectLobby() { if(myPeer)myPeer.destroy(); isHost=false; currentGame=null; showScreen('screen-connect'); }
 
         function createRoom() {
-            setOverlay(true, "作成中...");
-            const pin = Math.floor(10000+Math.random()*90000).toString();
-            myPeer = new Peer(APP_PREFIX + pin);
-            myPeer.on('open', () => {
-                isHost=true; connections=[]; players=[{id:myPeer.id, name:localData.name, role:localData.role}];
-                document.getElementById('room-pin-display').innerText = `PIN: ${pin}`; renderPlayerList();
-                setOverlay(false); showScreen('screen-lobby'); showToast("ホストになりました", "success");
-            });
+            setOverlay(true, "作成中..."); const pin = Math.floor(10000+Math.random()*90000).toString(); myPeer = new Peer(APP_PREFIX + pin);
+            myPeer.on('open', () => { isHost=true; connections=[]; players=[{id:myPeer.id, name:localData.name, role:localData.role}]; document.getElementById('room-pin-display').innerText = `PIN: ${pin}`; renderPlayerList(); setOverlay(false); showScreen('screen-lobby'); showToast("ホストになりました", "success"); });
             myPeer.on('connection', c => {
                 c.on('open', ()=>c.send({type:'WELCOME'}));
                 c.on('data', d => {
@@ -326,21 +343,14 @@
                     else if(d.type==='UPDATE_INFO') { const p=players.find(x=>x.id===c.peer); if(p){p.name=d.name; broadcast({type:'SYNC_PLAYERS',players}); renderPlayerList();} }
                     else handleHostMsg(c.peer, d);
                 });
-                c.on('close', ()=>{
-                    players=players.filter(x=>x.id!==c.peer); connections=connections.filter(x=>x.peer!==c.peer);
-                    broadcast({type:'SYNC_PLAYERS',players}); renderPlayerList();
-                    // ゲーム中の切断対応チェック
-                    if(currentGame==='ten') checkTenAns();
-                    if(currentGame==='ww') { checkWWActs(); checkWWVotes(); }
-                });
+                c.on('close', ()=>{ players=players.filter(x=>x.id!==c.peer); connections=connections.filter(x=>x.peer!==c.peer); broadcast({type:'SYNC_PLAYERS',players}); renderPlayerList(); if(currentGame==='ten') checkTenAns(); if(currentGame==='ww') { checkWWActs(); checkWWVotes(); } });
             });
             myPeer.on('error', e => { setOverlay(false); showToast("エラー: "+e.type,"error"); });
         }
         function broadcast(d) { connections.forEach(c=>{if(c.open)c.send(d);}); }
 
         function joinRoom() {
-            const pin = document.getElementById('join-pin').value; if(pin.length!==5) return showToast("5桁のPINを入力","error");
-            setOverlay(true, "接続中..."); myPeer=new Peer();
+            const pin = document.getElementById('join-pin').value; if(pin.length!==5) return showToast("5桁のPINを入力","error"); setOverlay(true, "接続中..."); myPeer=new Peer();
             myPeer.on('open', () => {
                 hostConnection = myPeer.connect(APP_PREFIX+pin,{reliable:true});
                 hostConnection.on('data', d => {
@@ -353,33 +363,20 @@
             myPeer.on('error', e => { setOverlay(false); showToast("エラー","error"); disconnectLobby(); });
         }
 
-        function renderPlayerList() {
-            const list = document.getElementById('player-list'); list.innerHTML=''; document.getElementById('player-count').innerText=players.length;
-            players.forEach(p => {
-                const isMe = p.id===myPeer.id; let b='';
-                if(p.role==='admin') b=document.getElementById('icon-admin').innerHTML; else if(p.role==='verified') b=document.getElementById('icon-verified').innerHTML;
-                list.innerHTML += `<div class="flex items-center gap-2 bg-slate-900 p-2 rounded border border-slate-700"><div class="w-8 h-8 rounded bg-indigo-500 flex items-center justify-center font-bold text-white">${p.name[0]}</div><div class="flex-1 flex items-center min-w-0"><span class="truncate">${p.name}</span>${b}</div></div>`;
-            });
-        }
+        function renderPlayerList() { const list = document.getElementById('player-list'); list.innerHTML=''; document.getElementById('player-count').innerText=players.length; players.forEach(p => { const isMe = p.id===myPeer.id; let b=''; if(p.role==='admin') b=document.getElementById('icon-admin').innerHTML; else if(p.role==='verified') b=document.getElementById('icon-verified').innerHTML; list.innerHTML += `<div class="flex items-center gap-2 bg-slate-900 p-2 rounded border border-slate-700"><div class="w-8 h-8 rounded bg-indigo-500 flex items-center justify-center font-bold text-white">${p.name[0]}</div><div class="flex-1 flex items-center min-w-0"><span class="truncate">${p.name}</span>${b}</div></div>`; }); }
 
         // --- ゲーム基盤 ---
-        function hostStartGame(gId) {
-            if(!isHost) return; currentGame = gId; broadcast({type:'GAME_START', gId}); clientStartGame(gId);
-            if(gId==='ten') initTenHost(); if(gId==='drawing') initDrawHost(); if(gId==='bomb') initBombHost();
+        function preStartGame(gId) {
+            if(!confirm("お題設定はしましたか？\n（未設定の場合は初期設定のお題が使われます）")) return;
+            hostStartGame(gId);
         }
-        function clientStartGame(gId) {
-            currentGame = gId; document.querySelectorAll('.game-screen').forEach(e=>e.classList.add('hidden')); showScreen('screen-game-'+gId);
-            injectPlayAgain('ten'); injectPlayAgain('ww'); injectPlayAgain('draw'); injectPlayAgain('bomb');
-            if(gId==='ten') resetTen(); if(gId==='ww') resetWW(); if(gId==='drawing') resetDraw(); if(gId==='bomb') resetBomb();
-        }
+        function hostStartGame(gId) { if(!isHost) return; currentGame = gId; broadcast({type:'GAME_START', gId}); clientStartGame(gId); if(gId==='ten') initTenHost(); if(gId==='drawing') initDrawHost(); if(gId==='bomb') initBombHost(); }
+        function clientStartGame(gId) { currentGame = gId; document.querySelectorAll('.game-screen').forEach(e=>e.classList.add('hidden')); showScreen('screen-game-'+gId); injectPlayAgain('ten'); injectPlayAgain('ww'); injectPlayAgain('draw'); injectPlayAgain('bomb'); if(gId==='ten') resetTen(); if(gId==='ww') resetWW(); if(gId==='drawing') resetDraw(); if(gId==='bomb') resetBomb(); }
         function endGame() { if(!isHost)return; currentGame=null; broadcast({type:'GAME_END'}); showScreen('screen-lobby'); }
+        function forceEndGame() { if(!confirm("現在のゲームを強制終了してロビーに戻りますか？")) return; endGame(); }
         function playAgain() { if(!isHost)return; hostStartGame(currentGame); }
         
-        function injectPlayAgain(prefix) {
-            const tpl = document.getElementById('tpl-play-again').content.cloneNode(true);
-            const container = document.getElementById(`${prefix}-play-again`);
-            if(container) { container.innerHTML=''; container.appendChild(tpl); updateHostUI(); }
-        }
+        function injectPlayAgain(prefix) { const tpl = document.getElementById('tpl-play-again').content.cloneNode(true); const container = document.getElementById(`${prefix}-play-again`); if(container) { container.innerHTML=''; container.appendChild(tpl); updateHostUI(); } }
 
         function handleHostMsg(pid, d) {
             if(currentGame==='ten' && d.type==='TEN_ANS') { tenState.ans[pid]=d.ans; broadcast({type:'TEN_SUB_UPDATE', pid}); updateTenStatus(); checkTenAns(); }
@@ -413,69 +410,55 @@
         let tenState = { mode: 'text', ans: {} };
         const canvasTen = document.getElementById('ten-canvas'); const ctxTen = canvasTen.getContext('2d');
         let tDraw = { isDraw: false, x:0, y:0 };
-        
-        canvasTen.addEventListener('mousedown', e=>{tDraw.isDraw=true; const r=canvasTen.getBoundingClientRect(); tDraw.x=e.clientX-r.left; tDraw.y=e.clientY-r.top;});
-        canvasTen.addEventListener('mousemove', e=>{if(!tDraw.isDraw)return; const r=canvasTen.getBoundingClientRect(); const x=e.clientX-r.left, y=e.clientY-r.top; ctxTen.beginPath(); ctxTen.lineWidth=4; ctxTen.strokeStyle='black'; ctxTen.moveTo(tDraw.x, tDraw.y); ctxTen.lineTo(x,y); ctxTen.stroke(); tDraw.x=x; tDraw.y=y; });
-        canvasTen.addEventListener('mouseup', ()=>tDraw.isDraw=false); canvasTen.addEventListener('touchstart', e=>{e.preventDefault(); tDraw.isDraw=true; const r=canvasTen.getBoundingClientRect(); tDraw.x=e.touches[0].clientX-r.left; tDraw.y=e.touches[0].clientY-r.top;},{passive:false});
-        canvasTen.addEventListener('touchmove', e=>{e.preventDefault(); if(!tDraw.isDraw)return; const r=canvasTen.getBoundingClientRect(); const x=e.touches[0].clientX-r.left, y=e.touches[0].clientY-r.top; ctxTen.beginPath(); ctxTen.lineWidth=4; ctxTen.moveTo(tDraw.x, tDraw.y); ctxTen.lineTo(x,y); ctxTen.stroke(); tDraw.x=x; tDraw.y=y;},{passive:false});
-        canvasTen.addEventListener('touchend', ()=>tDraw.isDraw=false);
+        canvasTen.addEventListener('mousedown', e=>{tDraw.isDraw=true; const r=canvasTen.getBoundingClientRect(); tDraw.x=e.clientX-r.left; tDraw.y=e.clientY-r.top;}); canvasTen.addEventListener('mousemove', e=>{if(!tDraw.isDraw)return; const r=canvasTen.getBoundingClientRect(); const x=e.clientX-r.left, y=e.clientY-r.top; ctxTen.beginPath(); ctxTen.lineWidth=4; ctxTen.strokeStyle='black'; ctxTen.moveTo(tDraw.x, tDraw.y); ctxTen.lineTo(x,y); ctxTen.stroke(); tDraw.x=x; tDraw.y=y; }); canvasTen.addEventListener('mouseup', ()=>tDraw.isDraw=false); canvasTen.addEventListener('touchstart', e=>{e.preventDefault(); tDraw.isDraw=true; const r=canvasTen.getBoundingClientRect(); tDraw.x=e.touches[0].clientX-r.left; tDraw.y=e.touches[0].clientY-r.top;},{passive:false}); canvasTen.addEventListener('touchmove', e=>{e.preventDefault(); if(!tDraw.isDraw)return; const r=canvasTen.getBoundingClientRect(); const x=e.touches[0].clientX-r.left, y=e.touches[0].clientY-r.top; ctxTen.beginPath(); ctxTen.lineWidth=4; ctxTen.moveTo(tDraw.x, tDraw.y); ctxTen.lineTo(x,y); ctxTen.stroke(); tDraw.x=x; tDraw.y=y;},{passive:false}); canvasTen.addEventListener('touchend', ()=>tDraw.isDraw=false);
 
-        function initTenHost() { tenState.ans={}; const t=["ドラえもん","アンパンマン","富士山","りんご"][Math.floor(Math.random()*4)]; broadcast({type:'TEN_TOPIC', topic:t}); resetTen(); document.getElementById('ten-topic').innerText=t; }
-        function resetTen() { tenState.ans={}; tenState.mode='text'; switchTenMode('text'); ctxTen.clearRect(0,0,300,300); document.getElementById('ten-ans-text').value=''; document.getElementById('ten-input-view').classList.remove('hidden'); document.getElementById('btn-ten-submit').classList.remove('hidden'); document.getElementById('ten-judge-view').classList.add('hidden'); document.getElementById('ten-result-view').classList.add('hidden'); document.getElementById('ten-status').innerText='進行中'; updateTenStatus(); }
+        function initTenHost() { tenState.ans={}; const tops=gameSettings.tenTopics.split(',').map(s=>s.trim()).filter(s=>s); const t=tops.length>0 ? tops[Math.floor(Math.random()*tops.length)] : "お題エラー"; broadcast({type:'TEN_TOPIC', topic:t}); resetTen(); document.getElementById('ten-topic').innerText=t; }
+        function resetTen() { tenState.ans={}; tenState.mode='text'; switchTenMode('text'); ctxTen.clearRect(0,0,300,300); document.getElementById('ten-ans-text').value=''; document.getElementById('ten-input-view').classList.remove('hidden'); document.getElementById('btn-ten-submit').classList.remove('hidden'); document.getElementById('btn-ten-force').classList.remove('hidden'); document.getElementById('ten-judge-view').classList.add('hidden'); document.getElementById('ten-result-view').classList.add('hidden'); document.getElementById('ten-status').innerText='進行中'; updateTenStatus(); }
         function switchTenMode(m) { tenState.mode=m; document.getElementById('ten-mode-text').classList.toggle('hidden',m!=='text'); document.getElementById('ten-mode-draw').classList.toggle('hidden',m!=='draw'); document.getElementById('btn-ten-text').className=m==='text'?'px-4 py-1 bg-indigo-600 rounded-l-lg font-bold text-sm text-white':'px-4 py-1 bg-slate-700 rounded-l-lg font-bold text-sm text-gray-300'; document.getElementById('btn-ten-draw').className=m==='draw'?'px-4 py-1 bg-indigo-600 rounded-r-lg font-bold text-sm text-white':'px-4 py-1 bg-slate-700 rounded-r-lg font-bold text-sm text-gray-300'; }
         function clearTenCanvas() { ctxTen.clearRect(0,0,300,300); }
-        function submitTenAns() {
-            let ans = tenState.mode==='text' ? document.getElementById('ten-ans-text').value.trim() : canvasTen.toDataURL('image/png');
-            if(tenState.mode==='text' && !ans) return showToast("入力して","error");
-            document.getElementById('btn-ten-submit').classList.add('hidden'); document.getElementById('ten-status').innerText='待機中';
-            if(isHost){ tenState.ans[myPeer.id]=ans; broadcast({type:'TEN_SUB_UPDATE', pid:myPeer.id}); updateTenStatus(); checkTenAns(); } else { tenState.ans[myPeer.id]='submitted'; updateTenStatus(); hostConnection.send({type:'TEN_ANS', ans}); }
-        }
+        function submitTenAns() { let ans = tenState.mode==='text' ? document.getElementById('ten-ans-text').value.trim() : canvasTen.toDataURL('image/png'); if(tenState.mode==='text' && !ans) return showToast("入力して","error"); document.getElementById('btn-ten-submit').classList.add('hidden'); document.getElementById('ten-status').innerText='待機中'; if(isHost){ tenState.ans[myPeer.id]=ans; broadcast({type:'TEN_SUB_UPDATE', pid:myPeer.id}); updateTenStatus(); checkTenAns(); } else { tenState.ans[myPeer.id]='submitted'; updateTenStatus(); hostConnection.send({type:'TEN_ANS', ans}); } }
+        
         function updateTenStatus() {
-            const list = document.getElementById('ten-submit-status'); list.innerHTML='';
-            players.forEach(p => { const isSub = !!tenState.ans[p.id]; list.innerHTML += `<div>${p.name}: ${isSub?'<span class="text-emerald-400">✅ 提出済</span>':'<span class="text-gray-400">💭 考え中...</span>'}</div>`; });
+            const answered = Object.keys(tenState.ans).filter(id => players.find(p=>p.id===id)).length;
+            document.getElementById('ten-submit-count').innerText = answered;
+            document.getElementById('ten-submit-total').innerText = players.length;
         }
-        function checkTenAns() {
+        function forceTenDeadline() {
+            if(!isHost) return; document.getElementById('btn-ten-force').classList.add('hidden');
+            players.forEach(p => { if(!tenState.ans[p.id]) tenState.ans[p.id] = tenState.mode==='text' ? '(時間切れ)' : ''; });
+            checkTenAns(true);
+        }
+        function checkTenAns(force=false) {
             if(!isHost) return;
-            const answeredCount = Object.keys(tenState.ans).filter(id => players.find(p=>p.id===id)).length; // 離脱者を考慮
-            if(answeredCount === players.length && players.length > 0) {
-                const arr = players.map(p=>({name:p.name, ans:tenState.ans[p.id]}));
+            const answeredCount = Object.keys(tenState.ans).filter(id => players.find(p=>p.id===id)).length;
+            if(force || (answeredCount === players.length && players.length > 0)) {
+                const arr = players.map(p=>({name:p.name, ans:tenState.ans[p.id]||''}));
                 broadcast({type:'TEN_GATHERED', ansArray:arr}); clientTenJudgeWait(arr);
             }
         }
-        function clientTenJudgeWait(arr) {
-            document.getElementById('ten-input-view').classList.add('hidden'); document.getElementById('ten-judge-view').classList.remove('hidden'); document.getElementById('ten-judge-view').classList.add('flex');
-            const list = document.getElementById('ten-judge-list'); list.innerHTML='';
-            arr.forEach(a=>{
-                const c = a.ans.startsWith('data:image') ? `<img src="${a.ans}" class="w-full bg-white rounded border border-gray-400">` : `<div class="text-xl font-bold py-4">${a.ans}</div>`;
-                list.innerHTML += `<div class="flex flex-col items-center bg-slate-800 p-2 rounded border border-slate-600"><span class="text-sm text-emerald-300 mb-1">${a.name}</span>${c}</div>`;
-            });
-        }
-        function hostDecideTen(match) { const arr = players.map(p=>({name:p.name, ans:tenState.ans[p.id]})); broadcast({type:'TEN_RES', match, ansArray:arr}); clientTenRes(match, arr); }
-        function clientTenRes(match, arr) {
-            document.getElementById('ten-judge-view').classList.add('hidden'); document.getElementById('ten-result-view').classList.remove('hidden'); document.getElementById('ten-result-view').classList.add('flex');
-            const t = document.getElementById('ten-result-title'); t.innerText=match?"🎉 全員一致！":"💥 不一致"; t.className=match?"text-4xl font-extrabold text-emerald-400":"text-4xl font-extrabold text-red-500";
-            const list = document.getElementById('ten-result-list'); list.innerHTML='';
-            arr.forEach(a=>{
-                const c = a.ans.startsWith('data:image') ? `<img src="${a.ans}" class="w-full bg-white rounded">` : `<div class="text-lg font-bold">${a.ans}</div>`;
-                list.innerHTML += `<div class="flex flex-col items-center bg-slate-800 p-2 rounded"><span class="text-sm text-gray-300 mb-1">${a.name}</span>${c}</div>`;
-            });
-        }
+        function clientTenJudgeWait(arr) { document.getElementById('ten-input-view').classList.add('hidden'); document.getElementById('ten-judge-view').classList.remove('hidden'); document.getElementById('ten-judge-view').classList.add('flex'); const list = document.getElementById('ten-judge-list'); list.innerHTML=''; arr.forEach(a=>{ const c = a.ans.startsWith('data:image') ? `<img src="${a.ans}" class="w-full bg-white rounded border border-gray-400">` : `<div class="text-xl font-bold py-4">${a.ans}</div>`; list.innerHTML += `<div class="flex flex-col items-center bg-slate-800 p-2 rounded border border-slate-600"><span class="text-sm text-emerald-300 mb-1">${a.name}</span>${c}</div>`; }); }
+        function hostDecideTen(match) { const arr = players.map(p=>({name:p.name, ans:tenState.ans[p.id]||''})); broadcast({type:'TEN_RES', match, ansArray:arr}); clientTenRes(match, arr); }
+        function clientTenRes(match, arr) { document.getElementById('ten-judge-view').classList.add('hidden'); document.getElementById('ten-result-view').classList.remove('hidden'); document.getElementById('ten-result-view').classList.add('flex'); const t = document.getElementById('ten-result-title'); t.innerText=match?"🎉 全員一致！":"💥 不一致"; t.className=match?"text-4xl font-extrabold text-emerald-400":"text-4xl font-extrabold text-red-500"; const list = document.getElementById('ten-result-list'); list.innerHTML=''; arr.forEach(a=>{ const c = a.ans.startsWith('data:image') ? `<img src="${a.ans}" class="w-full bg-white rounded">` : `<div class="text-lg font-bold">${a.ans}</div>`; list.innerHTML += `<div class="flex flex-col items-center bg-slate-800 p-2 rounded"><span class="text-sm text-gray-300 mb-1">${a.name}</span>${c}</div>`; }); }
 
         // --- Game 2: 人狼 ---
-        let wwState = { type: 'onenight', roles: {}, acts: {}, votes: {}, phase: '', timer: null, alive: [], dayTime: 60 };
+        let wwState = { type: 'onenight', roles: {}, acts: {}, votes: {}, phase: '', timer: null, nightTimer: null, alive: [], dayTime: 60 };
         function openWWSettings(type) { wwState.type = type; document.getElementById('ww-setup-title').innerText = type==='onenight'?'ワンナイト人狼設定':'人狼設定'; document.querySelectorAll('.ww-standard-only').forEach(e=>e.classList.toggle('hidden', type==='onenight')); document.getElementById('modal-ww-settings').showModal(); }
         function startWerewolf() {
             document.getElementById('modal-ww-settings').close();
             const w=parseInt(document.getElementById('ww-set-wolf').value)||1, s=parseInt(document.getElementById('ww-set-seer').value)||0, t=parseInt(document.getElementById('ww-set-time').value)||60;
             const k=wwState.type==='standard'?(parseInt(document.getElementById('ww-set-knight').value)||0):0, m=wwState.type==='standard'?(parseInt(document.getElementById('ww-set-madman').value)||0):0;
-            wwState.dayTime = t;
-            let pool=[]; for(let i=0;i<w;i++)pool.push('wolf'); for(let i=0;i<s;i++)pool.push('seer'); for(let i=0;i<k;i++)pool.push('knight'); for(let i=0;i<m;i++)pool.push('madman');
-            while(pool.length < players.length) pool.push('villager'); pool.sort(()=>Math.random()-0.5);
-            wwState.roles={}; wwState.alive=players.map(p=>p.id); wwState.acts={}; wwState.votes={};
+            wwState.dayTime = t; let pool=[]; for(let i=0;i<w;i++)pool.push('wolf'); for(let i=0;i<s;i++)pool.push('seer'); for(let i=0;i<k;i++)pool.push('knight'); for(let i=0;i<m;i++)pool.push('madman');
+            while(pool.length < players.length) pool.push('villager'); pool.sort(()=>Math.random()-0.5); wwState.roles={}; wwState.alive=players.map(p=>p.id); wwState.acts={}; wwState.votes={};
             players.forEach((p,i)=> { wwState.roles[p.id]=pool[i]; const data={type:'WW_ROLE', gType:wwState.type, role:pool[i], time:t, targetIds: players.filter(x=>x.id!==p.id).map(x=>x.id)}; if(p.id===myPeer.id)clientWWRole(data); else connections.find(c=>c.peer===p.id)?.send(data); });
             hostStartGame('ww');
+            
+            // 夜の行動タイマー (止まるの防止)
+            clearTimeout(wwState.nightTimer);
+            wwState.nightTimer = setTimeout(() => {
+                players.forEach(p=>{ if(!wwState.acts[p.id]) wwState.acts[p.id]='none'; }); checkWWActs();
+            }, 25000);
         }
-        function resetWW() { document.getElementById('ww-timer').innerText="00:00"; document.getElementById('ww-night-view').classList.remove('hidden'); document.getElementById('ww-day-view').classList.add('hidden'); document.getElementById('ww-result-view').classList.add('hidden'); document.getElementById('ww-vote-area').classList.add('hidden'); document.getElementById('ww-night-action').classList.add('hidden'); document.getElementById('ww-night-waiting').classList.add('hidden'); }
+        function resetWW() { clearInterval(wwState.timer); document.getElementById('ww-timer').innerText="00:00"; document.getElementById('ww-night-view').classList.remove('hidden'); document.getElementById('ww-day-view').classList.add('hidden'); document.getElementById('ww-result-view').classList.add('hidden'); document.getElementById('ww-vote-area').classList.add('hidden'); document.getElementById('ww-night-action').classList.add('hidden'); document.getElementById('ww-night-waiting').classList.add('hidden'); }
         function clientWWRole(d) {
             resetWW(); document.getElementById('ww-header-title').innerText=d.gType==='onenight'?'🐺 ワンナイト人狼':'🌕 人狼ゲーム';
             const r=d.role, e=document.getElementById('ww-my-role'), a=document.getElementById('ww-night-action'), desc=document.getElementById('ww-action-desc'), list=document.getElementById('ww-target-list');
@@ -486,95 +469,62 @@
                 needsAction=true; desc.innerText = r==='seer'?'占う相手を選んでください':r==='knight'?'守る相手を選んでください':'襲撃する相手を選んでください';
                 d.targetIds.forEach(id => { const n=players.find(x=>x.id===id)?.name; list.innerHTML+=`<button onclick="submitWWAct('${id}')" class="p-3 bg-slate-800 hover:bg-slate-700 rounded-xl font-bold border border-slate-600">${n}</button>`; });
             }
-            if(needsAction) { a.classList.remove('hidden'); } else { document.getElementById('ww-night-waiting').classList.remove('hidden'); if(isHost){wwState.acts[myPeer.id]='none';checkWWActs();} else hostConnection.send({type:'WW_ACT', target:'none'}); }
+            if(needsAction) { a.classList.remove('hidden'); } else { document.getElementById('ww-night-waiting').classList.remove('hidden'); setTimeout(()=>{ if(isHost){wwState.acts[myPeer.id]='none';checkWWActs();} else hostConnection.send({type:'WW_ACT', target:'none'}); }, 500); }
         }
         function submitWWAct(tid) { document.getElementById('ww-night-action').classList.add('hidden'); document.getElementById('ww-night-waiting').classList.remove('hidden'); if(isHost){wwState.acts[myPeer.id]=tid; checkWWActs();} else hostConnection.send({type:'WW_ACT', target:tid}); }
         function checkWWActs() {
             if(!isHost) return; 
             const actedCount = Object.keys(wwState.acts).filter(id => players.find(p=>p.id===id)).length;
             if(actedCount === players.length && players.length > 0) {
+                clearTimeout(wwState.nightTimer);
                 let killed = null;
-                if(wwState.type==='standard') {
-                    const wActs = Object.keys(wwState.acts).filter(id=>wwState.roles[id]==='wolf'); if(wActs.length>0) killed=wwState.acts[wActs[0]];
-                    const kActs = Object.keys(wwState.acts).filter(id=>wwState.roles[id]==='knight'); if(kActs.length>0 && wwState.acts[kActs[0]]===killed) killed=null;
-                }
-                const sActs = Object.keys(wwState.acts).filter(id=>wwState.roles[id]==='seer');
-                sActs.forEach(sId => { const t=wwState.acts[sId]; const isW=wwState.roles[t]==='wolf'; const msg=`占いの結果：${players.find(x=>x.id===t)?.name} は ${isW?'人狼です':'人狼ではありません'}`; if(sId===myPeer.id)showToast(msg); else connections.find(c=>c.peer===sId)?.send({type:'WW_DAY', sysMsg:msg}); });
-                
+                if(wwState.type==='standard') { const wActs = Object.keys(wwState.acts).filter(id=>wwState.roles[id]==='wolf'); if(wActs.length>0) killed=wwState.acts[wActs[0]]; const kActs = Object.keys(wwState.acts).filter(id=>wwState.roles[id]==='knight'); if(kActs.length>0 && wwState.acts[kActs[0]]===killed) killed=null; }
+                const sActs = Object.keys(wwState.acts).filter(id=>wwState.roles[id]==='seer'); sActs.forEach(sId => { const t=wwState.acts[sId]; const isW=wwState.roles[t]==='wolf'; const msg=`占いの結果：${players.find(x=>x.id===t)?.name||'誰も'} は ${isW?'人狼です':'人狼ではありません'}`; if(sId===myPeer.id)showToast(msg); else connections.find(c=>c.peer===sId)?.send({type:'WW_DAY', sysMsg:msg}); });
                 if(killed) wwState.alive = wwState.alive.filter(id=>id!==killed);
                 const startData = { type:'WW_DAY', alive:wwState.alive, killed }; broadcast(startData); clientWWDay(startData);
                 
-                let t = wwState.dayTime || 60;
-                clearInterval(wwState.timer); // 念のため
-                wwState.timer=setInterval(()=>{ t--; const str=`00:${String(t).padStart(2,'0')}`; broadcast({type:'WW_TIME', str}); document.getElementById('ww-timer').innerText=str; if(t<=0){ clearInterval(wwState.timer); broadcast({type:'WW_DAY', phase:'vote'}); clientWWDay({phase:'vote'}); } }, 1000);
+                let t = wwState.dayTime || 60; clearInterval(wwState.timer); wwState.timer=setInterval(()=>{ t--; const str=`00:${String(t).padStart(2,'0')}`; broadcast({type:'WW_TIME', str}); document.getElementById('ww-timer').innerText=str; if(t<=0){ clearInterval(wwState.timer); broadcast({type:'WW_DAY', phase:'vote'}); clientWWDay({phase:'vote'}); } }, 1000);
             }
         }
         function clientWWDay(d) {
             if(d.sysMsg) showToast(d.sysMsg, "info");
             if(d.alive) { document.getElementById('ww-night-view').classList.add('hidden'); document.getElementById('ww-day-view').classList.remove('hidden'); document.getElementById('ww-day-view').classList.add('flex'); if(d.killed && d.killed===myPeer.id) showToast("あなたは襲撃されました...","error"); }
-            if(d.phase==='vote') {
-                document.getElementById('ww-vote-area').classList.remove('hidden'); document.getElementById('ww-vote-area').classList.add('flex');
-                const list = document.getElementById('ww-vote-list'); list.innerHTML='';
-                players.forEach(p=>{ if(p.id!==myPeer.id) list.innerHTML+=`<button onclick="submitWWVote('${p.id}')" class="p-3 bg-red-900/50 hover:bg-red-600 rounded-xl font-bold border border-red-700">${p.name}</button>`; });
-            }
+            if(d.phase==='vote') { document.getElementById('ww-vote-area').classList.remove('hidden'); document.getElementById('ww-vote-area').classList.add('flex'); const list = document.getElementById('ww-vote-list'); list.innerHTML=''; players.forEach(p=>{ if(p.id!==myPeer.id) list.innerHTML+=`<button onclick="submitWWVote('${p.id}')" class="p-3 bg-red-900/50 hover:bg-red-600 rounded-xl font-bold border border-red-700">${p.name}</button>`; }); }
         }
         function submitWWVote(tid) { document.getElementById('ww-vote-area').classList.add('hidden'); if(isHost){wwState.votes[myPeer.id]=tid;checkWWVotes();} else hostConnection.send({type:'WW_VOTE', target:tid}); }
         function checkWWVotes() {
-            if(!isHost) return; 
-            const votedCount = Object.keys(wwState.votes).filter(id => players.find(p=>p.id===id)).length;
+            if(!isHost) return; const votedCount = Object.keys(wwState.votes).filter(id => players.find(p=>p.id===id)).length;
             if(votedCount === players.length && players.length > 0) {
-                let counts={}; Object.values(wwState.votes).forEach(vid=>{counts[vid]=(counts[vid]||0)+1});
-                let max=-1, exId=null; for(let id in counts){ if(counts[id]>max){max=counts[id];exId=id;}else if(counts[id]===max){exId=null;} }
+                let counts={}; Object.values(wwState.votes).forEach(vid=>{counts[vid]=(counts[vid]||0)+1}); let max=-1, exId=null; for(let id in counts){ if(counts[id]>max){max=counts[id];exId=id;}else if(counts[id]===max){exId=null;} }
                 broadcast({type:'WW_RES', exiled:exId, roles:wwState.roles}); clientWWRes({exiled:exId, roles:wwState.roles});
             }
         }
         function clientWWRes(d) {
             document.getElementById('ww-day-view').classList.add('hidden'); document.getElementById('ww-result-view').classList.remove('hidden'); document.getElementById('ww-result-view').classList.add('flex');
-            let wDie=false, n=players.find(p=>p.id===d.exiled)?.name;
-            if(d.exiled) { document.getElementById('ww-exiled-name').innerText=`${n} 追放`; if(d.roles[d.exiled]==='wolf') wDie=true; } else document.getElementById('ww-exiled-name').innerText='追放者なし';
-            const t=document.getElementById('ww-result-title');
-            if(wDie) { t.innerText='🎉 市民陣営の勝利！'; t.className='text-3xl font-extrabold text-emerald-400'; } else { t.innerText='🐺 人狼陣営の勝利！'; t.className='text-3xl font-extrabold text-red-500'; }
-            const rev=document.getElementById('ww-roles-reveal'); rev.innerHTML='';
-            players.forEach(p=>{ const r=d.roles[p.id]; let s=''; if(r==='wolf')s='🐺';else if(r==='seer')s='🔮';else if(r==='knight')s='🛡️';else if(r==='madman')s='🃏';else s='🧑‍🌾'; rev.innerHTML+=`<div class="text-sm border-b border-slate-700/50 pb-1">${s} <span class="text-white font-bold">${p.name}</span></div>`; });
+            let wDie=false, n=players.find(p=>p.id===d.exiled)?.name; if(d.exiled) { document.getElementById('ww-exiled-name').innerText=`${n} 追放`; if(d.roles[d.exiled]==='wolf') wDie=true; } else document.getElementById('ww-exiled-name').innerText='追放者なし';
+            const t=document.getElementById('ww-result-title'); if(wDie) { t.innerText='🎉 市民陣営の勝利！'; t.className='text-3xl font-extrabold text-emerald-400'; } else { t.innerText='🐺 人狼陣営の勝利！'; t.className='text-3xl font-extrabold text-red-500'; }
+            const rev=document.getElementById('ww-roles-reveal'); rev.innerHTML=''; players.forEach(p=>{ const r=d.roles[p.id]; let s=''; if(r==='wolf')s='🐺';else if(r==='seer')s='🔮';else if(r==='knight')s='🛡️';else if(r==='madman')s='🃏';else s='🧑‍🌾'; rev.innerHTML+=`<div class="text-sm border-b border-slate-700/50 pb-1">${s} <span class="text-white font-bold">${p.name}</span></div>`; });
         }
 
-        // --- Game 3: 爆弾ゲーム ---
+        // --- Game 3: 爆弾 ---
         let bombState = { holder: null, timerId: null };
         function initBombHost() { bombState.holder=players[Math.floor(Math.random()*players.length)].id; broadcast({type:'BOMB_STATE', holder:bombState.holder}); clientBombState({holder:bombState.holder}); const time=10000+Math.random()*15000; clearTimeout(bombState.timerId); bombState.timerId=setTimeout(()=>{ broadcast({type:'BOMB_EXP', loser:bombState.holder}); clientBombExp(bombState.holder); }, time); }
         function resetBomb() { document.getElementById('bomb-view').classList.remove('hidden'); document.getElementById('bomb-view').classList.add('flex'); document.getElementById('bomb-result').classList.add('hidden'); }
-        function clientBombState(d) {
-            resetBomb(); const isMe = d.holder===myPeer.id; const icon=document.getElementById('bomb-icon'), stat=document.getElementById('bomb-status'), area=document.getElementById('bomb-pass-area');
-            icon.className = isMe ? "text-9xl bomb-active" : "text-9xl"; stat.innerText = isMe ? "やばい！あなたに爆弾が！" : `${players.find(p=>p.id===d.holder)?.name} が爆弾を持っています`; stat.className=isMe?"text-2xl font-bold text-red-400":"text-2xl font-bold text-white";
-            area.classList.toggle('hidden', !isMe); area.style.display=isMe?'flex':'none';
-            if(isMe) { const list=document.getElementById('bomb-target-list'); list.innerHTML=''; players.forEach(p=>{ if(p.id!==myPeer.id) list.innerHTML+=`<button onclick="passBomb('${p.id}')" class="py-4 bg-red-600 rounded-xl font-bold text-lg shadow-lg">${p.name}</button>`; }); }
-        }
+        function clientBombState(d) { resetBomb(); const isMe = d.holder===myPeer.id; const icon=document.getElementById('bomb-icon'), stat=document.getElementById('bomb-status'), area=document.getElementById('bomb-pass-area'); icon.className = isMe ? "text-9xl bomb-active" : "text-9xl"; stat.innerText = isMe ? "やばい！あなたに爆弾が！" : `${players.find(p=>p.id===d.holder)?.name} が爆弾を持っています`; stat.className=isMe?"text-2xl font-bold text-red-400":"text-2xl font-bold text-white"; area.classList.toggle('hidden', !isMe); area.style.display=isMe?'flex':'none'; if(isMe) { const list=document.getElementById('bomb-target-list'); list.innerHTML=''; players.forEach(p=>{ if(p.id!==myPeer.id) list.innerHTML+=`<button onclick="passBomb('${p.id}')" class="py-4 bg-red-600 rounded-xl font-bold text-lg shadow-lg">${p.name}</button>`; }); } }
         function passBomb(tid) { document.getElementById('bomb-pass-area').style.display='none'; if(isHost) hostBombPass(tid); else hostConnection.send({type:'BOMB_PASS', target:tid}); }
         function hostBombPass(tid) { if(document.getElementById('bomb-result').classList.contains('hidden')){ bombState.holder=tid; broadcast({type:'BOMB_STATE', holder:tid}); clientBombState({holder:tid}); } }
-        function clientBombExp(loser) {
-            document.getElementById('bomb-view').classList.add('hidden'); document.getElementById('bomb-result').classList.remove('hidden'); document.getElementById('bomb-result').classList.add('flex');
-            document.getElementById('bomb-loser').innerText = `${players.find(p=>p.id===loser)?.name || '不明'} の負け！`;
-        }
+        function clientBombExp(loser) { document.getElementById('bomb-view').classList.add('hidden'); document.getElementById('bomb-result').classList.remove('hidden'); document.getElementById('bomb-result').classList.add('flex'); document.getElementById('bomb-loser').innerText = `${players.find(p=>p.id===loser)?.name || '不明'} の負け！`; }
 
         // --- Game 4: お絵かき ---
-        const drawWordsList = [
-            {w:"りんご", a:["りんご","リンゴ","林檎","apple"]}, {w:"猫", a:["猫","ねこ","ネコ","cat"]},
-            {w:"車", a:["車","くるま","クルマ","car"]}, {w:"メガネ", a:["メガネ","めがね","眼鏡","glasses"]},
-            {w:"時計", a:["時計","とけい","トケイ"]}, {w:"自転車", a:["自転車","じてんしゃ","チャリ"]},
-            {w:"飛行機", a:["飛行機","ひこうき","ヒコウキ"]}
-        ];
-        const canvasDraw=document.getElementById('draw-canvas'), ctx=canvasDraw.getContext('2d'); let drawState={id:null, obj:null, is:false, color:'black', x:0, y:0};
+        const canvasDraw=document.getElementById('draw-canvas'), ctx=canvasDraw.getContext('2d'); let drawState={id:null, word:'', is:false, color:'black', x:0, y:0};
         
-        function initDrawHost() { drawState.id=players[Math.floor(Math.random()*players.length)].id; drawState.obj=drawWordsList[Math.floor(Math.random()*drawWordsList.length)]; broadcast({type:'DRAW_START', id:drawState.id, word:drawState.obj.w, obj:drawState.obj}); clientDrawStart({id:drawState.id, word:drawState.obj.w, obj:drawState.obj}); }
+        function initDrawHost() { const tops=gameSettings.drawTopics.split(',').map(s=>s.trim()).filter(s=>s); const t=tops.length>0 ? tops[Math.floor(Math.random()*tops.length)] : "お題エラー"; drawState.id=players[Math.floor(Math.random()*players.length)].id; drawState.word=t; broadcast({type:'DRAW_START', id:drawState.id, word:t}); clientDrawStart({id:drawState.id, word:t}); }
         function resetDraw() { ctx.clearRect(0,0,400,400); document.getElementById('draw-chat-history').innerHTML=''; document.getElementById('draw-result-view').classList.add('hidden'); document.getElementById('draw-result-view').classList.remove('flex'); document.getElementById('draw-topic-display').classList.add('hidden'); document.getElementById('draw-tools').classList.add('hidden'); document.getElementById('draw-guess').value=''; }
         function clientDrawStart(d) {
-            resetDraw(); drawState.id=d.id; drawState.obj=d.obj; document.getElementById('draw-drawer-name').innerText=`出題: ${players.find(p=>p.id===d.id)?.name}`;
+            resetDraw(); drawState.id=d.id; drawState.word=d.word; document.getElementById('draw-drawer-name').innerText=`出題: ${players.find(p=>p.id===d.id)?.name}`;
             if(d.id===myPeer.id) { document.getElementById('draw-topic-display').classList.remove('hidden'); document.getElementById('draw-topic-word').innerText=d.word; document.getElementById('draw-tools').classList.remove('hidden'); document.getElementById('draw-tools').classList.add('flex'); document.getElementById('draw-status').innerText='描いてください'; } else { document.getElementById('draw-status').innerText='当ててください'; }
         }
-        canvasDraw.addEventListener('mousedown', e=>{if(drawState.id!==myPeer.id)return; drawState.is=true; const r=canvasDraw.getBoundingClientRect(); drawState.x=e.clientX-r.left; drawState.y=e.clientY-r.top;});
-        canvasDraw.addEventListener('mousemove', e=>{if(!drawState.is)return; const r=canvasDraw.getBoundingClientRect(); const x=e.clientX-r.left, y=e.clientY-r.top; const d={type:'DRAW_LINE', x0:drawState.x, y0:drawState.y, x1:x, y1:y, c:drawState.color}; drawExec(d); if(isHost)handleHostMsg(myPeer.id, d); else hostConnection.send(d); drawState.x=x; drawState.y=y; });
-        canvasDraw.addEventListener('mouseup', ()=>drawState.is=false); canvasDraw.addEventListener('mouseout', ()=>drawState.is=false); canvasDraw.addEventListener('touchstart', e=>{if(drawState.id!==myPeer.id)return; e.preventDefault(); drawState.is=true; const r=canvasDraw.getBoundingClientRect(); drawState.x=e.touches[0].clientX-r.left; drawState.y=e.touches[0].clientY-r.top;},{passive:false});
-        canvasDraw.addEventListener('touchmove', e=>{if(!drawState.is)return; e.preventDefault(); const r=canvasDraw.getBoundingClientRect(); const x=e.touches[0].clientX-r.left, y=e.touches[0].clientY-r.top; const d={type:'DRAW_LINE', x0:drawState.x, y0:drawState.y, x1:x, y1:y, c:drawState.color}; drawExec(d); if(isHost)handleHostMsg(myPeer.id, d); else hostConnection.send(d); drawState.x=x; drawState.y=y;},{passive:false});
-        canvasDraw.addEventListener('touchend', ()=>drawState.is=false);
+        canvasDraw.addEventListener('mousedown', e=>{if(drawState.id!==myPeer.id)return; drawState.is=true; const r=canvasDraw.getBoundingClientRect(); drawState.x=e.clientX-r.left; drawState.y=e.clientY-r.top;}); canvasDraw.addEventListener('mousemove', e=>{if(!drawState.is)return; const r=canvasDraw.getBoundingClientRect(); const x=e.clientX-r.left, y=e.clientY-r.top; const d={type:'DRAW_LINE', x0:drawState.x, y0:drawState.y, x1:x, y1:y, c:drawState.color}; drawExec(d); if(isHost)handleHostMsg(myPeer.id, d); else hostConnection.send(d); drawState.x=x; drawState.y=y; }); canvasDraw.addEventListener('mouseup', ()=>drawState.is=false); canvasDraw.addEventListener('mouseout', ()=>drawState.is=false); canvasDraw.addEventListener('touchstart', e=>{if(drawState.id!==myPeer.id)return; e.preventDefault(); drawState.is=true; const r=canvasDraw.getBoundingClientRect(); drawState.x=e.touches[0].clientX-r.left; drawState.y=e.touches[0].clientY-r.top;},{passive:false}); canvasDraw.addEventListener('touchmove', e=>{if(!drawState.is)return; e.preventDefault(); const r=canvasDraw.getBoundingClientRect(); const x=e.touches[0].clientX-r.left, y=e.touches[0].clientY-r.top; const d={type:'DRAW_LINE', x0:drawState.x, y0:drawState.y, x1:x, y1:y, c:drawState.color}; drawExec(d); if(isHost)handleHostMsg(myPeer.id, d); else hostConnection.send(d); drawState.x=x; drawState.y=y;},{passive:false}); canvasDraw.addEventListener('touchend', ()=>drawState.is=false);
         function drawExec(d) { ctx.beginPath(); ctx.strokeStyle=d.c; ctx.lineWidth=4; ctx.lineCap='round'; ctx.moveTo(d.x0, d.y0); ctx.lineTo(d.x1, d.y1); ctx.stroke(); }
         
         function sendDrawGuess() {
@@ -582,11 +532,13 @@
             if(drawState.id===myPeer.id) { const d={type:'DRAW_CHAT', sender:localData.name, text:t, win:false}; drawChat(d.sender, t, false); if(isHost)broadcast(d); else hostConnection.send({type:'RELAY_CHAT', msg:d}); }
             else { if(isHost) checkDrawGuess(myPeer.id, t); else hostConnection.send({type:'DRAW_GUESS', text:t}); }
         }
+        
+        // ★ ひらがな・カタカナ正規化による正解判定
+        function normalizeText(str) { return str.normalize('NFKC').replace(/[\u30a1-\u30f6]/g, m => String.fromCharCode(m.charCodeAt(0) - 0x60)).toLowerCase().trim(); }
         function checkDrawGuess(pid, t) {
             const s=players.find(p=>p.id===pid); if(!s)return;
-            // ★ ひらがな・カタカナ等も含めて正解判定 (配列 accepts に含まれるか)
-            if(drawState.obj.a.includes(t.toLowerCase()) && pid!==drawState.id) { 
-                broadcast({type:'DRAW_WIN', winner:s.name, word:drawState.obj.w}); handleClientMsg({type:'DRAW_WIN', winner:s.name, word:drawState.obj.w}); 
+            if(normalizeText(t) === normalizeText(drawState.word) && pid!==drawState.id) { 
+                broadcast({type:'DRAW_WIN', winner:s.name, word:drawState.word}); handleClientMsg({type:'DRAW_WIN', winner:s.name, word:drawState.word}); 
             } else { 
                 const d={type:'DRAW_CHAT', sender:s.name, text:t, win:false}; broadcast(d); drawChat(s.name, t, false); 
             }
